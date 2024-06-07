@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
+import '../bloc/favorites/favorites_cubit.dart';
 import '../engine/storage.dart';
 import '../widgets/drawerItem.dart';
 
@@ -17,6 +19,59 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  var musicsData = [
+    {
+      "id": 1,
+      "photo": "assets/images/musicKor.jpg",
+      "title": "Kor",
+      "artist": "Emir Can İğrek",
+    },
+    {
+      "id": 2,
+      "photo": "assets/images/musicIgnite.jpg",
+      "title": "Ignite",
+      "artist": "K-391 & Alan Walker",
+    },
+    {
+      "id": 3,
+      "photo": "assets/images/musicImgood.jpg",
+      "title": "I'm Good (blue)",
+      "artist": "David Guetta & Bebe Rexha",
+    },
+    {
+      "id": 4,
+      "photo": "assets/images/musicImparator.jpg",
+      "title": "IMPARATOR",
+      "artist": "Sefo",
+    },
+    {
+      "id": 5,
+      "photo": "assets/images/musicSeninugruna.jpg",
+      "title": "SENIN UGRUNA",
+      "artist": "UZI",
+    },
+    {
+      "id": 6,
+      "photo": "assets/images/musicImparator.jpg",
+      "title": "IMPARATOR",
+      "artist": "Sefo",
+    },
+    {
+      "id": 7,
+      "photo": "assets/images/musicKor.jpg",
+      "title": "Kor",
+      "artist": "Emir Can İğrek",
+    },
+    {
+      "id": 8,
+      "photo": "assets/images/musicIgnite.jpg",
+      "title": "Ignite",
+      "artist": "K-391 & Alan Walker",
+    },
+  ];
+
+  late FavoritesCubit favoritesCubit;
 
   Map<String, dynamic> userInfo = {
     "Id": "",
@@ -164,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     checkLogin();
+    favoritesCubit = context.read<FavoritesCubit>();
   }
 
   @override
@@ -176,6 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Color.fromARGB(255, 30, 30, 30),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           toolbarHeight: 70,
           iconTheme: IconThemeData(
             color: Color.fromARGB(255, 234, 234, 234),
@@ -759,6 +816,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
+                      SoloTitleItem("Önerilen Müzikler"),
+                      RecommendedMusicList(size),
                     ],
                   ),
                 ),
@@ -843,6 +902,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Container RecommendedMusicList(Size size) {
+    int rowCount = musicsData.length;
+    double musicContainerHeight = (rowCount * 68).toDouble();
+
+    return Container(
+      height: musicContainerHeight,
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: musicsData.length,
+        itemBuilder: (context, index) => RecommendedMusic(
+            size,
+            musicsData[index]["photo"].toString(),
+            musicsData[index]["title"].toString(),
+            musicsData[index]["artist"].toString(),
+            index),
+      ),
+    );
+  }
+
   Widget QuickPicksMusic(Size size, String photo, String title, String artist) {
     return Container(
       margin: EdgeInsets.only(left: 15),
@@ -890,6 +969,121 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Icon(Icons.more_vert, color: Colors.white),
         ],
+      ),
+    );
+  }
+
+  Widget RecommendedMusic(
+      Size size, String photo, String title, String artist, int index) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 18),
+      width: size.width,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 3),
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(photo),
+                    fit: BoxFit.fill,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                  Text(
+                    artist,
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 150, 150, 150),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20)),
+                      color: Color.fromARGB(255, 30, 30, 30),
+                    ),
+                    height: 180,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        MusicSettingsSection(Icons.queue_music, "Siraya ekle", () {}),
+                        MusicSettingsSection(
+                            Icons.favorite_border, "Beğenilenlere ekle", () {
+                          favoritesCubit.addToFavorites(
+                              id: musicsData[index]["id"] as int,
+                              photo: musicsData[index]["photo"].toString(),
+                              title: musicsData[index]["title"].toString(),
+                              artist: musicsData[index]["artist"].toString());
+                          GoRouter.of(context).pop();
+                        }),
+                        MusicSettingsSection(Icons.album, "Albüme git", () {}),
+                        MusicSettingsSection(Icons.download, "İndir", () {}),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Icon(Icons.more_vert, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget MusicSettingsSection(IconData icon, String title, Function()? onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        child: Row(
+          children: [
+            Icon(icon, size: 17, color: Colors.white),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

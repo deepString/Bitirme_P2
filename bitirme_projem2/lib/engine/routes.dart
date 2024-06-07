@@ -4,6 +4,7 @@ import '../screens/authLoading.dart';
 import '../screens/boardingScreen.dart';
 import '../screens/changePassword.dart';
 import '../screens/errorScreen.dart';
+import '../screens/favoritesMusics.dart';
 import '../screens/homeScreen.dart';
 import '../screens/libraryScreen.dart';
 import '../screens/loginScreen.dart';
@@ -70,6 +71,10 @@ final routes = GoRouter(
     GoRoute(
       path: '/musicRecognize',
       builder: (context, state) => const MusicRecognizeScreen(),
+    ),
+    GoRoute(
+      path: '/favorite',
+      builder: (context, state) => const FavoritesMusicsScreen(),
     ),
   ],
 );

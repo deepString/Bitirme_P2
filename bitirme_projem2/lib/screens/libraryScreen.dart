@@ -441,64 +441,67 @@ class _LibraryScreenState extends State<LibraryScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 3),
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.fromARGB(255, 201, 137, 198),
-                      Color.fromARGB(255, 70, 92, 156),
-                      Color.fromARGB(255, 6, 61, 57),
-                    ],
-                  ),
-                ),
-                child: Icon(
-                  Icons.thumb_up,
-                  color: Colors.white,
-                  size: 27,
-                ),
-              ),
-              Gap(10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 240, 240, 240),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+          InkWell(
+            onTap: () => GoRouter.of(context).push("/favorite"),
+            child: Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 3),
+                  height: 56,
+                  width: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromARGB(255, 201, 137, 198),
+                        Color.fromARGB(255, 70, 92, 156),
+                        Color.fromARGB(255, 6, 61, 57),
+                      ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        "assets/icons/pin.svg",
-                        height: 12,
-                        colorFilter: ColorFilter.mode(
-                            Color.fromARGB(255, 150, 150, 150),
-                            BlendMode.srcIn),
-                      ),
-                      Gap(5),
-                      Text(
-                        "Otomatik oynatma listesi",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 150, 150, 150),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
+                  child: Icon(
+                    Icons.thumb_up,
+                    color: Colors.white,
+                    size: 27,
                   ),
-                ],
-              ),
-            ],
+                ),
+                Gap(10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 240, 240, 240),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        SvgPicture.asset(
+                          "assets/icons/pin.svg",
+                          height: 12,
+                          colorFilter: ColorFilter.mode(
+                              Color.fromARGB(255, 150, 150, 150),
+                              BlendMode.srcIn),
+                        ),
+                        Gap(5),
+                        Text(
+                          "Otomatik oynatma listesi",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 150, 150, 150),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           Icon(Icons.more_vert, color: Color.fromARGB(255, 240, 240, 240)),
         ],

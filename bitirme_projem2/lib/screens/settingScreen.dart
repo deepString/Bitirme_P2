@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+
+import '../bloc/client/client_cubit.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -9,204 +12,223 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  late ClientCubit clientCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    clientCubit = context.read<ClientCubit>();
+  }
+
   List<bool> switchChange = [false, false];
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 30, 30, 30),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          title: Text(
-            "Ayarlar",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+    return BlocBuilder<ClientCubit, ClientState>(builder: (context, state) {
+      return SafeArea(
+        child: Scaffold(
+          backgroundColor: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 30, 30, 30)
+              : null,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            title: Text(
+              "Ayarlar",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+            iconTheme: IconThemeData(
+              color: Color.fromARGB(255, 234, 234, 234),
             ),
           ),
-          centerTitle: true,
-          iconTheme: IconThemeData(
-            color: Color.fromARGB(255, 234, 234, 234),
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              SettingsItem("Profili Düzenle", "Profili düzenleyin", () {}),
-              SettingsItem("Ekolayzer", "Ses ayarlarini düzenleyin", () {}),
-              SettingsItem(
-                  "Depolama", "Depolama ayarlarini kontrol edin", () {}),
-              SettingsItem("Bildirimler", "Bildirimleri yönetin", () {}),
-              SettingsItemSwitch(
-                  "Sansürsüz içeriğe izin ver",
-                  "Sansürsüz içerikleri çalmak için bu seçeneği etkinleştirmelisin",
-                  0),
-              SettingsItemSwitch(
-                  "Yüksek ses kalitesi", "Yüksek hizli internet gerektirir", 1),
-              Container(
-                margin: EdgeInsets.only(right: 10, left: 20, top: 8),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    InkWell(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Diller",
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 240, 240, 240),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 5),
-                              child: Text(
-                                "Türkçe",
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 240, 240, 240),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // InkWell(
-                    //   onTap: () {},
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.symmetric(
-                    //         horizontal: 5, vertical: 8),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //       children: [
-                    //         Text(
-                    //           "Dil",
-                    //           style: TextStyle(
-                    //             color: Color.fromARGB(255, 240, 240, 240),
-                    //             fontSize: 14,
-                    //             fontWeight: FontWeight.w400,
-                    //           ),
-                    //         ),
-                    //         Padding(
-                    //           padding: const EdgeInsets.only(right: 5),
-                    //           child: Text(
-                    //             "English",
-                    //             style: TextStyle(
-                    //               color: Color.fromARGB(255, 240, 240, 240),
-                    //               fontSize: 14,
-                    //               fontWeight: FontWeight.w500,
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-                    Row(
-                      children: [
-                        Gap(20),
-                        Expanded(
-                          child: Divider(
-                            color: Color.fromARGB(40, 225, 225, 225),
-                          ),
-                        ),
-                        Gap(10),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(right: 10, left: 20, top: 8),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          right: 1, left: 5, top: 8, bottom: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                SettingsItem("Profili Düzenle", "Profili düzenleyin", () {}),
+                SettingsItem("Ekolayzer", "Ses ayarlarini düzenleyin", () {}),
+                SettingsItem(
+                    "Depolama", "Depolama ayarlarini kontrol edin", () {}),
+                SettingsItem("Bildirimler", "Bildirimleri yönetin", () {}),
+                SettingsItemSwitch(
+                    "Sansürsüz içeriğe izin ver",
+                    "Sansürsüz içerikleri çalmak için bu seçeneği etkinleştirmelisin",
+                    0),
+                SettingsItemSwitch("Yüksek ses kalitesi",
+                    "Yüksek hizli internet gerektirir", 1),
+                Container(
+                  margin: EdgeInsets.only(right: 10, left: 20, top: 8),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      InkWell(
+                        onTap: () {},
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "LightMode / DarkMode",
+                                "Diller",
                                 style: TextStyle(
                                   color: Color.fromARGB(255, 240, 240, 240),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
-                              Gap(6),
-                              Icon(Icons.wb_sunny_outlined,
-                                  size: 19,
-                                  color: Color.fromARGB(255, 240, 240, 240)),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 5),
+                                child: Text(
+                                  "Türkçe",
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 240, 240, 240),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
-                          Container(
-                            height: 20,
-                            child: Transform.scale(
-                              scale: 0.7,
-                              child: Switch(
-                                value: true,
-                                onChanged: (value) {},
-                              ),
+                        ),
+                      ),
+                      // InkWell(
+                      //   onTap: () {},
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.symmetric(
+                      //         horizontal: 5, vertical: 8),
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //       children: [
+                      //         Text(
+                      //           "Dil",
+                      //           style: TextStyle(
+                      //             color: Color.fromARGB(255, 240, 240, 240),
+                      //             fontSize: 14,
+                      //             fontWeight: FontWeight.w400,
+                      //           ),
+                      //         ),
+                      //         Padding(
+                      //           padding: const EdgeInsets.only(right: 5),
+                      //           child: Text(
+                      //             "English",
+                      //             style: TextStyle(
+                      //               color: Color.fromARGB(255, 240, 240, 240),
+                      //               fontSize: 14,
+                      //               fontWeight: FontWeight.w500,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+                      Row(
+                        children: [
+                          Gap(20),
+                          Expanded(
+                            child: Divider(
+                              color: Color.fromARGB(40, 225, 225, 225),
                             ),
-                          )
+                          ),
+                          Gap(10),
                         ],
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Gap(20),
-                        Expanded(
-                          child: Divider(
-                            color: Color.fromARGB(40, 225, 225, 225),
-                          ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(right: 10, left: 20, top: 8),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            right: 1, left: 5, top: 8, bottom: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  clientCubit.state.darkMode
+                                      ? "DarkMode"
+                                      : "LightMode",
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 240, 240, 240),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                Gap(6),
+                                Icon(
+                                    clientCubit.state.darkMode
+                                        ? Icons.nightlight_outlined
+                                        : Icons.wb_sunny_outlined,
+                                    size: 19,
+                                    color: Color.fromARGB(255, 240, 240, 240)),
+                              ],
+                            ),
+                            Container(
+                              height: 20,
+                              child: Transform.scale(
+                                scale: 0.7,
+                                child: Switch(
+                                  value: clientCubit.state.darkMode,
+                                  onChanged: (value) {
+                                    clientCubit.changeDarkMode(darkMode: value);
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                        Gap(10),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SettingsItem("İzinler", "İzinleri yönetin", () {}),
-              SettingsItem("Gizlilik Politikasi",
-                  "Gizliliğinizle ilgili bilgi alin", () {}),
-              SettingsItem("Yardim Merkezi",
-                  "Yardima ihtiyaciniz varsa destek alin", () {}),
-              Padding(
-                padding: const EdgeInsets.only(top: 15, bottom: 40),
-                child: FilledButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Colors.white),
-                  ),
-                  child: Text(
-                    "Oturumu Kapat",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 14,
-                    ),
+                      ),
+                      Row(
+                        children: [
+                          Gap(20),
+                          Expanded(
+                            child: Divider(
+                              color: Color.fromARGB(40, 225, 225, 225),
+                            ),
+                          ),
+                          Gap(10),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                SettingsItem("İzinler", "İzinleri yönetin", () {}),
+                SettingsItem("Gizlilik Politikasi",
+                    "Gizliliğinizle ilgili bilgi alin", () {}),
+                SettingsItem("Yardim Merkezi",
+                    "Yardima ihtiyaciniz varsa destek alin", () {}),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15, bottom: 40),
+                  child: FilledButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.white),
+                    ),
+                    child: Text(
+                      "Oturumu Kapat",
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget SettingsItemSwitch(String title, String description, int indexSwitch) {
@@ -316,7 +338,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       Row(
                         children: [
                           Container(
-                            width: 360,
+                            width: 300,
                             child: Text(
                               title,
                               style: TextStyle(
@@ -335,7 +357,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       Row(
                         children: [
                           Container(
-                            width: 365,
+                            width: 300,
                             child: Text(
                               description,
                               style: TextStyle(

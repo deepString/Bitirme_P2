@@ -14,11 +14,11 @@ class BoardingScreen extends StatefulWidget {
 class _BoardingScreenState extends State<BoardingScreen> {
   final boardingData = [
     {
-      "image": "assets/images/boardingImage1.avif",
+      "image": "assets/images/boardingImage1.jpg",
       "description": "Favori şarkilariniz her an yaninizda",
     },
     {
-      "image": "assets/images/boardingImage2.avif",
+      "image": "assets/images/boardingImage2.jpg",
       "description": "Müziğin kontrolü sizde. İstediğiniz an, istediğiniz yerde",
     },
     {
