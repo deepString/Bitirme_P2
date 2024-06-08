@@ -66,6 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ],
         ),
+        backgroundColor: Color.fromARGB(255, 239, 230, 248),
         content: Text(
           "Çikiş yapmak istediğine emin misin?",
           style: TextStyle(
@@ -81,6 +82,9 @@ class _SearchScreenState extends State<SearchScreen> {
               GoRouter.of(context).replace("/welcome");
               GoRouter.of(context).pop();
             },
+            style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 247, 241, 251))
+            ),
             child: Text(
               "Onayla",
               style: TextStyle(
@@ -91,6 +95,9 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           ElevatedButton(
               onPressed: () => GoRouter.of(context).pop(),
+              style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 247, 241, 251))
+            ),
               child: Text(
                 "İptal",
                 style: TextStyle(
@@ -380,7 +387,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 MusicGenreFrame(
                                     "assets/images/searchMusic1.jpg", "#slow pop"),
                                 MusicGenreFrame(
-                                    "assets/images/searchMusic2.avif", "#rock"),
+                                    "assets/images/searchMusic2.jpg", "#rock"),
                                 MusicGenreFrame(
                                     "assets/images/searchMusic3.webp", "#rap"),
                                 MusicGenreFrame(
@@ -400,7 +407,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              AllMusicGenreFrame("assets/images/searchGenre3.avif", "Rock"),
+                              AllMusicGenreFrame("assets/images/searchGenre3.jpg", "Rock"),
                               AllMusicGenreFrame("assets/images/searchGenre4.jpg", "Metal"),
                             ],
                           ),
@@ -408,7 +415,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AllMusicGenreFrame("assets/images/searchGenre5.jpg", "Jazz"),
-                              AllMusicGenreFrame("assets/images/searchGenre6.avif", "K-pop"),
+                              AllMusicGenreFrame("assets/images/searchGenre6.jpg", "K-pop"),
                             ],
                           ),
                         ],

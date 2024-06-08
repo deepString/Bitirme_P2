@@ -65,6 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+        backgroundColor: Color.fromARGB(255, 239, 230, 248),
         content: Text(
           "Çikiş yapmak istediğine emin misin?",
           style: TextStyle(
@@ -80,6 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               GoRouter.of(context).replace("/welcome");
               GoRouter.of(context).pop();
             },
+            style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 247, 241, 251))
+            ),
             child: Text(
               "Onayla",
               style: TextStyle(
@@ -90,6 +94,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           ElevatedButton(
               onPressed: () => GoRouter.of(context).pop(),
+              style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 247, 241, 251))
+            ),
               child: Text(
                 "İptal",
                 style: TextStyle(

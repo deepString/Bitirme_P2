@@ -34,6 +34,7 @@ class _BoardingScreenState extends State<BoardingScreen> {
     return SafeArea(
       child: Scaffold(
         extendBodyBehindAppBar: true,
+        backgroundColor: Color.fromARGB(255, 255, 251, 255),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

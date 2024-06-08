@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 import '../bloc/client/client_cubit.dart';
 import '../engine/localizations.dart';
@@ -230,7 +231,9 @@ class _SettingScreenState extends State<SettingScreen> {
                     ],
                   ),
                 ),
-                SettingsItem(AppLocalizations.of(context).getTranslate("settings9"), AppLocalizations.of(context).getTranslate("settings9_description"), () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings9"), AppLocalizations.of(context).getTranslate("settings9_description"), () {
+                  GoRouter.of(context).push("/perms");
+                }),
                 SettingsItem(AppLocalizations.of(context).getTranslate("settings10"),
                     AppLocalizations.of(context).getTranslate("settings10_description"), () {}),
                 SettingsItem(AppLocalizations.of(context).getTranslate("settings11"),

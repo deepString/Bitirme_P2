@@ -118,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        backgroundColor: Color.fromARGB(255, 239, 230, 248),
         content: Text(
           "Çikiş yapmak istediğine emin misin?",
           style: TextStyle(
@@ -133,6 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
               GoRouter.of(context).replace("/welcome");
               GoRouter.of(context).pop();
             },
+            style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 247, 241, 251))
+            ),
             child: Text(
               "Onayla",
               style: TextStyle(
@@ -143,6 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ElevatedButton(
               onPressed: () => GoRouter.of(context).pop(),
+              style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 247, 241, 251))
+              ),
               child: Text(
                 "İptal",
                 style: TextStyle(

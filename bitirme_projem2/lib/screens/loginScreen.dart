@@ -169,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           scrolledUnderElevation: 0.0,
+          iconTheme: IconThemeData(color: switchChange ? Colors.white : Color.fromARGB(255, 28, 28, 28)),
         ),
         body: loading
             ? Center(
@@ -201,6 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     switchChange = value;
                                   });
                                 },
+                                trackColor: MaterialStatePropertyAll(Color.fromARGB(255, 231, 224, 235)),
                                 activeThumbImage:
                                     AssetImage("assets/images/nightMode.png"),
                                 inactiveThumbImage:
@@ -761,8 +763,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         }
                       },
+                      style: TextStyle(
+                        color: Colors.black87,
+                      ),
+                      cursorColor: Colors.deepPurple,
                       controller: passwordController,
                       decoration: InputDecoration(
+                        filled: false,
                         isDense: true,
                         hintText: hint,
                         hintStyle: TextStyle(
@@ -771,8 +778,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         suffixIcon: IconButton(
                           icon: passwordVisible
-                              ? Icon(Icons.visibility_off, size: 20)
-                              : Icon(Icons.visibility, size: 20),
+                              ? Icon(Icons.visibility_off, size: 20, color: Color.fromARGB(255, 72, 68, 78))
+                              : Icon(Icons.visibility, size: 20, color: Color.fromARGB(255, 72, 68, 78)),
                           onPressed: () {
                             setState(() {
                               passwordVisible = !passwordVisible;
@@ -865,8 +872,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         }
                       },
+                      style: TextStyle(
+                        color: Colors.black87,
+                      ),
+                      cursorColor: Colors.deepPurple,
                       controller: emailController,
                       decoration: InputDecoration(
+                        filled: false,
                         isDense: true,
                         hintText: hint,
                         hintStyle: TextStyle(
