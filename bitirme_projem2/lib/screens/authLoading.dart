@@ -86,8 +86,22 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(251, 98, 54, 103),
+              Color.fromARGB(255, 134, 61, 186),
+            ],
+          ),
+        ),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color.fromARGB(255, 161, 200, 251),
+          ),
+        ),
       ),
     );
   }

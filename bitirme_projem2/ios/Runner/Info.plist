@@ -63,5 +63,12 @@
     <string>Older devices need location.</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>Can I have location always?</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>Used to demonstrate image picker plugin</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used to capture audio for image picker plugin</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to demonstrate image picker plugin</string>
 </dict>
 </plist>

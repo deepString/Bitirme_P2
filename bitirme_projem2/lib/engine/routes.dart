@@ -15,6 +15,7 @@ import '../screens/registerScreen.dart';
 import '../screens/resetPassword.dart';
 import '../screens/searchScreen.dart';
 import '../screens/settingScreen.dart';
+import '../screens/splashScreen.dart';
 import '../screens/welcomeScreen.dart';
 
 // GoRouter configuration
@@ -23,6 +24,10 @@ final routes = GoRouter(
   routes: [
     GoRoute(
       path: '/',
+      builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/authLoad',
       builder: (context, state) => const AuthLoadingScreen(),
     ),
     GoRoute(

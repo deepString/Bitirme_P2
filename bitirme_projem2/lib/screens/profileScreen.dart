@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io' show Platform;
+import 'dart:io';
+import 'package:image/image.dart' as img;
 
 import '../bloc/client/client_cubit.dart';
 import '../engine/localizations.dart';
@@ -170,11 +173,135 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  File? file;
+  File? cacheFile;
+  profilVarsaYukle() async {
+    final Directory appCacheDir = await getApplicationCacheDirectory();
+    File f = File("${appCacheDir.path}/avatar.jpg");
+
+    if (f.existsSync()) {
+      setState(() {
+        cacheFile = f;
+      });
+    }
+    else {
+
+    }
+  }
+
+  profilePhotoUpdate() async {
+    try {
+      ImagePicker iPicker = ImagePicker();
+
+      XFile? selectedFile = await iPicker.pickImage(
+          source: ImageSource.gallery, requestFullMetadata: false);
+
+      if (selectedFile == null) {
+        setState(() {
+          file = null;
+        });
+        return;
+      }
+
+      var fileLength = await selectedFile.length();
+
+      var dosyaFormati = selectedFile.name.split(".").last;
+
+      bool kuculebilirMi = false;
+
+      switch (dosyaFormati.toLowerCase()) {
+        case ("jpg"):
+        case ("jpeg"):
+        case ("png"):
+        case ("bmp"):
+        case ("tiff"):
+        case ("ico"):
+        case ("gif"):
+          kuculebilirMi = true;
+          break;
+      }
+
+      if (!kuculebilirMi) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Dosya Tipi"),
+            content: Text(
+                "Seçilen dosya türü desteklenmiyor"),
+          ),
+        );
+        return;
+      }
+
+      img.Image? temp;
+
+      if (dosyaFormati.toLowerCase() == "jpg" || dosyaFormati.toLowerCase() == "jpeg") {
+        temp = img.decodeJpg(File(selectedFile.path).readAsBytesSync());
+      }
+      else if (dosyaFormati.toLowerCase() == "png") {
+        temp = img.decodePng(File(selectedFile.path).readAsBytesSync());
+      }
+      else if (dosyaFormati.toLowerCase() == "bmp") {
+        temp = img.decodeBmp(File(selectedFile.path).readAsBytesSync());
+      }
+      else if (dosyaFormati.toLowerCase() == "gif") {
+        temp = img.decodeGif(File(selectedFile.path).readAsBytesSync());
+      }
+      else if (dosyaFormati.toLowerCase() == "tiff") {
+        temp = img.decodeTiff(File(selectedFile.path).readAsBytesSync());
+      }
+      else if (dosyaFormati.toLowerCase() == "ico") {
+        temp = img.decodeIco(File(selectedFile.path).readAsBytesSync());
+      }
+
+      if (temp!.width < 500 || temp.height < 359 || temp == null) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Seçilen Dosya Boyutu"),
+            content: Text(
+                "Seçilen dosyanin boyutu çok küçük, en az 500x359 seçmelisiniz"),
+          ),
+        );
+
+        return;
+      }
+
+      // Resize the image to a 120x? thumbnail (maintaining the aspect ratio).
+      img.Image thumbnail;
+      if (temp.width >= temp.height) {
+        thumbnail = img.copyResize(temp, height: 500);
+      }
+      else {
+        thumbnail = img.copyResize(temp, width: 500);
+      }
+      // Save the thumbnail to a jpeg file.
+      final resizedFileData = img.encodeJpg(thumbnail, quality: 85);
+
+      final Directory tempDir = await getTemporaryDirectory();
+      final Directory appSupportDir = await getApplicationSupportDirectory();
+      final Directory appCacheDir = await getApplicationCacheDirectory();
+
+      File yeniDosyam = File("${appCacheDir.path}/avatar.jpg");
+      yeniDosyam.writeAsBytesSync(resizedFileData);
+
+      setState(() {
+        file = yeniDosyam;
+        cacheFile = yeniDosyam;
+      });
+
+    } on Exception catch (e) {
+      print("Bir hata oluştu");
+      print(e);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     checkLogin();
     clientCubit = context.read<ClientCubit>();
+    profilVarsaYukle();
   }
 
   @override
@@ -923,8 +1050,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: CircleAvatar(
-                      backgroundImage: AssetImage("assets/images/profil1.jpg"),
+                      backgroundImage: cacheFile != null
+                          ? FileImage(cacheFile!)
+                          : AssetImage("assets/images/profil1.jpg") as ImageProvider<Object>,
                       radius: 38,
+                      child: Container(
+                        alignment: Alignment.topRight,
+                        height: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              onTap: profilePhotoUpdate,
+                              child: Container(
+                                padding: EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Theme.of(context).colorScheme.onBackground
+                                      : Colors.black87,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: SvgPicture.asset(
+                                  "assets/icons/pen.svg",
+                                  height: 13,
+                                  colorFilter: ColorFilter.mode(
+                                      clientCubit.state.darkMode
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .background
+                                          : Colors.white,
+                                      BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
