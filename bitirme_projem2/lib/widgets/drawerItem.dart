@@ -27,7 +27,6 @@ class DrawerItem extends StatelessWidget {
             Text(
               name,
               style: TextStyle(
-                color: Colors.black87,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),

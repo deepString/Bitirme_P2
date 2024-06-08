@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
 import '../bloc/client/client_cubit.dart';
+import '../engine/localizations.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -29,110 +30,131 @@ class _SettingScreenState extends State<SettingScreen> {
         child: Scaffold(
           backgroundColor: clientCubit.state.darkMode
               ? Color.fromARGB(255, 30, 30, 30)
-              : null,
+              : Color.fromARGB(255, 251, 251, 251),
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
             title: Text(
-              "Ayarlar",
+              AppLocalizations.of(context).getTranslate("settings_appbar"),
               style: TextStyle(
-                color: Colors.white,
+                color:
+                    clientCubit.state.darkMode ? Colors.white : Colors.black87,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
             centerTitle: true,
             iconTheme: IconThemeData(
-              color: Color.fromARGB(255, 234, 234, 234),
+              color: clientCubit.state.darkMode
+                  ? Color.fromARGB(255, 234, 234, 234)
+                  : Colors.black87,
             ),
           ),
           body: SingleChildScrollView(
             child: Column(
               children: [
-                SettingsItem("Profili Düzenle", "Profili düzenleyin", () {}),
-                SettingsItem("Ekolayzer", "Ses ayarlarini düzenleyin", () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings1"), AppLocalizations.of(context).getTranslate("settings1_description"), () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings2"), AppLocalizations.of(context).getTranslate("settings2_description"), () {}),
                 SettingsItem(
-                    "Depolama", "Depolama ayarlarini kontrol edin", () {}),
-                SettingsItem("Bildirimler", "Bildirimleri yönetin", () {}),
+                    AppLocalizations.of(context).getTranslate("settings3"), AppLocalizations.of(context).getTranslate("settings3_description"), () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings4"), AppLocalizations.of(context).getTranslate("settings4_description"), () {}),
                 SettingsItemSwitch(
-                    "Sansürsüz içeriğe izin ver",
-                    "Sansürsüz içerikleri çalmak için bu seçeneği etkinleştirmelisin",
+                    AppLocalizations.of(context).getTranslate("settings5"),
+                    AppLocalizations.of(context).getTranslate("settings5_description"),
                     0),
-                SettingsItemSwitch("Yüksek ses kalitesi",
-                    "Yüksek hizli internet gerektirir", 1),
+                SettingsItemSwitch(AppLocalizations.of(context).getTranslate("settings6"),
+                    AppLocalizations.of(context).getTranslate("settings6_description"), 1),
                 Container(
                   margin: EdgeInsets.only(right: 10, left: 20, top: 8),
                   width: double.infinity,
                   child: Column(
                     children: [
-                      InkWell(
-                        onTap: () {},
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Diller",
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 240, 240, 240),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 5),
-                                child: Text(
-                                  "Türkçe",
+                      if (clientCubit.state.language == "tr")
+                        InkWell(
+                          onTap: () {
+                            clientCubit.changeLanguage(language: "en");
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .getTranslate("settings7"),
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 240, 240, 240),
+                                    color: clientCubit.state.darkMode
+                                        ? Color.fromARGB(255, 240, 240, 240)
+                                        : Colors.black87,
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                              ),
-                            ],
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Text(
+                                    "Türkçe",
+                                    style: TextStyle(
+                                      color: clientCubit.state.darkMode
+                                          ? Color.fromARGB(255, 240, 240, 240)
+                                          : Colors.black87,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        InkWell(
+                          onTap: () {
+                            clientCubit.changeLanguage(language: "tr");
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .getTranslate("settings7"),
+                                  style: TextStyle(
+                                    color: clientCubit.state.darkMode
+                                        ? Color.fromARGB(255, 240, 240, 240)
+                                        : Colors.black87,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Text(
+                                    "English",
+                                    style: TextStyle(
+                                      color: clientCubit.state.darkMode
+                                          ? Color.fromARGB(255, 240, 240, 240)
+                                          : Colors.black87,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      // InkWell(
-                      //   onTap: () {},
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.symmetric(
-                      //         horizontal: 5, vertical: 8),
-                      //     child: Row(
-                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //       children: [
-                      //         Text(
-                      //           "Dil",
-                      //           style: TextStyle(
-                      //             color: Color.fromARGB(255, 240, 240, 240),
-                      //             fontSize: 14,
-                      //             fontWeight: FontWeight.w400,
-                      //           ),
-                      //         ),
-                      //         Padding(
-                      //           padding: const EdgeInsets.only(right: 5),
-                      //           child: Text(
-                      //             "English",
-                      //             style: TextStyle(
-                      //               color: Color.fromARGB(255, 240, 240, 240),
-                      //               fontSize: 14,
-                      //               fontWeight: FontWeight.w500,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                       Row(
                         children: [
                           Gap(20),
                           Expanded(
                             child: Divider(
-                              color: Color.fromARGB(40, 225, 225, 225),
+                              color: clientCubit.state.darkMode
+                                  ? Color.fromARGB(40, 225, 225, 225)
+                                  : Color.fromARGB(60, 0, 0, 0),
                             ),
                           ),
                           Gap(10),
@@ -156,10 +178,12 @@ class _SettingScreenState extends State<SettingScreen> {
                               children: [
                                 Text(
                                   clientCubit.state.darkMode
-                                      ? "DarkMode"
-                                      : "LightMode",
+                                      ? AppLocalizations.of(context).getTranslate("settings8.1")
+                                      : AppLocalizations.of(context).getTranslate("settings8.2"),
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 240, 240, 240),
+                                    color: clientCubit.state.darkMode
+                                        ? Color.fromARGB(255, 240, 240, 240)
+                                        : Colors.black87,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -170,7 +194,9 @@ class _SettingScreenState extends State<SettingScreen> {
                                         ? Icons.nightlight_outlined
                                         : Icons.wb_sunny_outlined,
                                     size: 19,
-                                    color: Color.fromARGB(255, 240, 240, 240)),
+                                    color: clientCubit.state.darkMode
+                                        ? Color.fromARGB(255, 240, 240, 240)
+                                        : Colors.black87),
                               ],
                             ),
                             Container(
@@ -193,7 +219,9 @@ class _SettingScreenState extends State<SettingScreen> {
                           Gap(20),
                           Expanded(
                             child: Divider(
-                              color: Color.fromARGB(40, 225, 225, 225),
+                              color: clientCubit.state.darkMode
+                                  ? Color.fromARGB(40, 225, 225, 225)
+                                  : Color.fromARGB(60, 0, 0, 0),
                             ),
                           ),
                           Gap(10),
@@ -202,22 +230,27 @@ class _SettingScreenState extends State<SettingScreen> {
                     ],
                   ),
                 ),
-                SettingsItem("İzinler", "İzinleri yönetin", () {}),
-                SettingsItem("Gizlilik Politikasi",
-                    "Gizliliğinizle ilgili bilgi alin", () {}),
-                SettingsItem("Yardim Merkezi",
-                    "Yardima ihtiyaciniz varsa destek alin", () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings9"), AppLocalizations.of(context).getTranslate("settings9_description"), () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings10"),
+                    AppLocalizations.of(context).getTranslate("settings10_description"), () {}),
+                SettingsItem(AppLocalizations.of(context).getTranslate("settings11"),
+                    AppLocalizations.of(context).getTranslate("settings11_description"), () {}),
                 Padding(
                   padding: const EdgeInsets.only(top: 15, bottom: 40),
                   child: FilledButton(
                     onPressed: () {},
                     style: ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.white),
+                      backgroundColor: MaterialStatePropertyAll(
+                          clientCubit.state.darkMode
+                              ? Colors.white
+                              : Colors.black87),
                     ),
                     child: Text(
-                      "Oturumu Kapat",
+                      AppLocalizations.of(context).getTranslate("settings_signOut"),
                       style: TextStyle(
-                        color: Colors.black87,
+                        color: clientCubit.state.darkMode
+                            ? Colors.black87
+                            : Colors.white,
                         fontSize: 14,
                       ),
                     ),
@@ -255,7 +288,9 @@ class _SettingScreenState extends State<SettingScreen> {
                               child: Text(
                                 title,
                                 style: TextStyle(
-                                  color: Color.fromARGB(255, 240, 240, 240),
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 240, 240, 240)
+                                      : Colors.black87,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -308,7 +343,9 @@ class _SettingScreenState extends State<SettingScreen> {
               Gap(20),
               Expanded(
                 child: Divider(
-                  color: Color.fromARGB(40, 225, 225, 225),
+                  color: clientCubit.state.darkMode
+                      ? Color.fromARGB(40, 225, 225, 225)
+                      : Color.fromARGB(60, 0, 0, 0),
                 ),
               ),
               Gap(10),
@@ -342,7 +379,9 @@ class _SettingScreenState extends State<SettingScreen> {
                             child: Text(
                               title,
                               style: TextStyle(
-                                color: Color.fromARGB(255, 240, 240, 240),
+                                color: clientCubit.state.darkMode
+                                    ? Color.fromARGB(255, 240, 240, 240)
+                                    : Colors.black87,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -372,7 +411,10 @@ class _SettingScreenState extends State<SettingScreen> {
                     ],
                   ),
                   Icon(Icons.chevron_right,
-                      size: 20, color: Color.fromARGB(255, 240, 240, 240)),
+                      size: 20,
+                      color: clientCubit.state.darkMode
+                          ? Color.fromARGB(255, 240, 240, 240)
+                          : Colors.black87),
                 ],
               ),
             ),
@@ -382,7 +424,9 @@ class _SettingScreenState extends State<SettingScreen> {
               Gap(20),
               Expanded(
                 child: Divider(
-                  color: Color.fromARGB(40, 225, 225, 225),
+                  color: clientCubit.state.darkMode
+                      ? Color.fromARGB(40, 225, 225, 225)
+                      : Color.fromARGB(60, 0, 0, 0),
                 ),
               ),
               Gap(10),

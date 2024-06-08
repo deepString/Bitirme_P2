@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
+import '../bloc/client/client_cubit.dart';
+import '../engine/localizations.dart';
 import '../engine/storage.dart';
 import '../widgets/drawerItem.dart';
 
@@ -18,6 +21,8 @@ class LibraryScreen extends StatefulWidget {
 }
 
 class _LibraryScreenState extends State<LibraryScreen> {
+  late ClientCubit clientCubit;
+
   Map<String, dynamic> userInfo = {
     "Id": "",
     "Name": "",
@@ -163,274 +168,305 @@ class _LibraryScreenState extends State<LibraryScreen> {
   void initState() {
     super.initState();
     checkLogin();
+    clientCubit = context.read<ClientCubit>();
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Color.fromARGB(
-            255, 30, 30, 30), // Color.fromARGB(255, 251, 251, 251),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: Text(
-            "Kitapliğin",
-            style: TextStyle(
-              color: Color.fromARGB(255, 240, 240, 240),
-              fontSize: 19,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          iconTheme: IconThemeData(
-            color: Color.fromARGB(255, 240, 240, 240),
-          ),
-          actions: [
-            InkWell(
-              onTap: () {},
-              customBorder: CircleBorder(),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: SvgPicture.asset(
-                  "assets/icons/search2.svg",
-                  height: 21,
-                  colorFilter: ColorFilter.mode(
-                      Color.fromARGB(255, 240, 240, 240), BlendMode.srcIn),
+    return BlocBuilder<ClientCubit, ClientState>(
+      builder: (context, state) {
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: clientCubit.state.darkMode
+              ? Color.fromARGB(
+                255, 30, 30, 30) : Color.fromARGB(255, 251, 251, 251),
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              title: Text(
+                AppLocalizations.of(context).getTranslate("library_appbar"),
+                style: TextStyle(
+                  color: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            Gap(2),
-            InkWell(
-              onTap: () {},
-              customBorder: CircleBorder(),
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: Icon(Icons.add,
-                    size: 24, color: Color.fromARGB(255, 240, 240, 240)),
+              iconTheme: IconThemeData(
+                color: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87,
               ),
-            ),
-            Gap(10),
-          ],
-        ),
-        drawer: Drawer(
-          backgroundColor: Color.fromARGB(255, 251, 251, 251),
-          surfaceTintColor: Color.fromARGB(255, 251, 251, 251),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 6, left: 6, top: 50, bottom: 30),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromARGB(255, 132, 132, 132),
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: CircleAvatar(
-                          backgroundImage:
-                              AssetImage("assets/images/profil1.jpg"),
-                          radius: 40,
-                        ),
-                      ),
+              actions: [
+                InkWell(
+                  onTap: () {},
+                  customBorder: CircleBorder(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: SvgPicture.asset(
+                      "assets/icons/search2.svg",
+                      height: 21,
+                      colorFilter: ColorFilter.mode(
+                          clientCubit.state.darkMode
+              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87, BlendMode.srcIn),
                     ),
-                    SizedBox(width: 10),
-                    Text(
-                      "${userInfo["Name"]}",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: "Oynatma Listeleri",
-                      icon: Icon(Icons.library_music, size: 22),
-                      onTapRoute:
-                          () {}, // Zaten kütüphane sayfasında olduğundan burası boş
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 15),
-                      child: Row(
-                        children: [
-                          Icon(Icons.message, size: 22),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            "Bize Ulaşin",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              final Uri uri =
-                                  Uri.parse("https://github.com/deepString");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: SvgPicture.asset(
-                                "assets/icons/github.svg",
-                                height: 30,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              final Uri uri = Uri.parse("tel:+901234567899");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(Icons.phone),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DrawerItem(
-                      name: "Ayarlar",
-                      icon: Icon(Icons.settings, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/setting");
-                      },
-                    ),
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: "Oturumu kapat",
-                      icon: Icon(Icons.logout_outlined, size: 22),
-                      onTapRoute: () {
-                        if (kIsWeb) {
-                          logoutMaterial();
-                        } else {
-                          if (Platform.isIOS || Platform.isMacOS) {
-                            logoutIOS();
-                          } else {
-                            logoutMaterial();
-                          }
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "Version 1.0.0",
-                style: TextStyle(color: Colors.grey, fontSize: 11),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Container(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            Gap(10),
-                            CategoryItem("Oynatma listeleri"),
-                            CategoryItem("Şarkilar"),
-                            CategoryItem("Albümler"),
-                            CategoryItem("Sanatçilar"),
-                            CategoryItem("Podcast"),
-                            Gap(18),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Son etkinlik",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color.fromARGB(255, 160, 160, 160),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Gap(5),
-                                Icon(Icons.keyboard_arrow_down,
-                                    size: 20,
-                                    color: Color.fromARGB(255, 160, 160, 160)),
-                              ],
-                            ),
-                            SvgPicture.asset(
-                              "assets/icons/menu.svg",
-                              height: 15,
-                              colorFilter: ColorFilter.mode(
-                                  Color.fromARGB(255, 160, 160, 160),
-                                  BlendMode.srcIn),
-                            ),
-                          ],
-                        ),
-                      ),
-                      LikedMusicPlaylist(size, "Beğendiğim müzikler"),
-                      MusicPlaylist(size, "assets/images/playlistImage2.jpg", "Oturmaya mi geldik", "20"),
-                      MusicPlaylist(size, "assets/images/playlistImage4.jpg", "Oynatma Listem 1", "15"),
-                      MusicPlaylist(size, "assets/images/playlistImage5.jpg", "Oynatma Listem 2", "18"),
-                      MusicPlaylist(size, "assets/images/playlistImage6.webp", "Oynatma Listem 3", "10"),
-                      MusicPlaylist(size, "assets/images/playlistImage9.jpg", "Biraz da slow", "25"),
-                      MusicPlaylist(size, "assets/images/playlistImage1.jpg", "Karişik", "16"),
-                      MusicPlaylist(size, "assets/images/playlistImage3.jpg", "Rock", "13"),
-                      MusicPlaylist(size, "assets/images/playlistImage4.jpg", "Jazz", "9"),
-                      MusicPlaylist(size, "assets/images/playlistImage2.jpg", "Türkçe", "17"),
-                    ],
                   ),
                 ),
+                Gap(2),
+                InkWell(
+                  onTap: () {},
+                  customBorder: CircleBorder(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(Icons.add,
+                        size: 24, color: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87),
+                  ),
+                ),
+                Gap(10),
+              ],
+            ),
+            drawer: Drawer(
+              backgroundColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 30, 30, 30)
+                : Color.fromARGB(255, 251, 251, 251),
+              surfaceTintColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 30, 30, 30)
+                : Color.fromARGB(255, 251, 251, 251),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        right: 6, left: 6, top: 50, bottom: 30),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 135, 64)
+                              : Color.fromARGB(255, 132, 132, 132),
+                          ),
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: clientCubit.state.darkMode
+                                ? Color.fromARGB(255, 30, 30, 30)
+                                : Colors.white,
+                            ),
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  AssetImage("assets/images/profil1.jpg"),
+                              radius: 40,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "${userInfo["Name"]}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Divider(
+                          color: Color.fromARGB(136, 155, 155, 155),
+                        ),
+                        DrawerItem(
+                          name: AppLocalizations.of(context).getTranslate("drawer_playlists"),
+                          icon: Icon(Icons.library_music, size: 22),
+                          onTapRoute:
+                              () {}, // Zaten kütüphane sayfasında olduğundan burası boş
+                        ),
+                        DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_findMusic"),
+                        icon: Icon(Icons.graphic_eq, size: 22),
+                        onTapRoute: () {
+                          GoRouter.of(context).push("/musicRecognize");
+                        },
+                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 15),
+                          child: Row(
+                            children: [
+                              Icon(Icons.message, size: 22),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                AppLocalizations.of(context).getTranslate("drawer_contact"),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  final Uri uri =
+                                      Uri.parse("https://github.com/deepString");
+                                  launchUrl(uri);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: SvgPicture.asset(
+                                    "assets/icons/github.svg",
+                                    height: 30,
+                                    colorFilter: ColorFilter.mode(
+                                      clientCubit.state.darkMode
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      BlendMode.srcIn),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  final Uri uri = Uri.parse("tel:+901234567899");
+                                  launchUrl(uri);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Icon(Icons.phone),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        DrawerItem(
+                          name: AppLocalizations.of(context).getTranslate("drawer_settings"),
+                          icon: Icon(Icons.settings, size: 22),
+                          onTapRoute: () {
+                            GoRouter.of(context).push("/setting");
+                          },
+                        ),
+                        Divider(
+                          color: Color.fromARGB(136, 155, 155, 155),
+                        ),
+                        DrawerItem(
+                          name: AppLocalizations.of(context).getTranslate("drawer_signOut"),
+                          icon: Icon(Icons.logout_outlined, size: 22),
+                          onTapRoute: () {
+                            if (kIsWeb) {
+                              logoutMaterial();
+                            } else {
+                              if (Platform.isIOS || Platform.isMacOS) {
+                                logoutIOS();
+                              } else {
+                                logoutMaterial();
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "Version 1.0.0",
+                    style: TextStyle(color: clientCubit.state.darkMode
+                          ? Color.fromARGB(200, 255, 255, 255)
+                          : Colors.grey, fontSize: 11),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
               ),
             ),
-            BottomMenu(),
-          ],
-        ),
-      ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                Gap(10),
+                                CategoryItem(AppLocalizations.of(context).getTranslate("library_category1")),
+                                CategoryItem(AppLocalizations.of(context).getTranslate("library_category2")),
+                                CategoryItem(AppLocalizations.of(context).getTranslate("library_category3")),
+                                CategoryItem(AppLocalizations.of(context).getTranslate("library_category4")),
+                                CategoryItem(AppLocalizations.of(context).getTranslate("library_category5")),
+                                Gap(18),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context).getTranslate("library_activity"),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Color.fromARGB(255, 160, 160, 160),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Gap(5),
+                                    Icon(Icons.keyboard_arrow_down,
+                                        size: 20,
+                                        color: Color.fromARGB(255, 160, 160, 160)),
+                                  ],
+                                ),
+                                SvgPicture.asset(
+                                  "assets/icons/menu.svg",
+                                  height: 15,
+                                  colorFilter: ColorFilter.mode(
+                                      Color.fromARGB(255, 160, 160, 160),
+                                      BlendMode.srcIn),
+                                ),
+                              ],
+                            ),
+                          ),
+                          LikedMusicPlaylist(size, "Beğendiğim müzikler"),
+                          MusicPlaylist(size, "assets/images/playlistImage2.jpg", "Oturmaya mi geldik", "20"),
+                          MusicPlaylist(size, "assets/images/playlistImage4.jpg", "Oynatma Listem 1", "15"),
+                          MusicPlaylist(size, "assets/images/playlistImage5.jpg", "Oynatma Listem 2", "18"),
+                          MusicPlaylist(size, "assets/images/playlistImage6.webp", "Oynatma Listem 3", "10"),
+                          MusicPlaylist(size, "assets/images/playlistImage9.jpg", "Biraz da slow", "25"),
+                          MusicPlaylist(size, "assets/images/playlistImage1.jpg", "Karişik", "16"),
+                          MusicPlaylist(size, "assets/images/playlistImage3.jpg", "Rock", "13"),
+                          MusicPlaylist(size, "assets/images/playlistImage4.jpg", "Jazz", "9"),
+                          MusicPlaylist(size, "assets/images/playlistImage2.jpg", "Türkçe", "17"),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                BottomMenu(),
+              ],
+            ),
+          ),
+        );
+      }
     );
   }
 
@@ -474,7 +510,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     Text(
                       title,
                       style: TextStyle(
-                        color: Color.fromARGB(255, 240, 240, 240),
+                        color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -490,7 +527,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         ),
                         Gap(5),
                         Text(
-                          "Otomatik oynatma listesi",
+                          AppLocalizations.of(context).getTranslate("library_otoPlaylist"),
                           style: TextStyle(
                             color: Color.fromARGB(255, 150, 150, 150),
                             fontSize: 13,
@@ -503,7 +540,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ],
             ),
           ),
-          Icon(Icons.more_vert, color: Color.fromARGB(255, 240, 240, 240)),
+          Icon(Icons.more_vert, color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87),
         ],
       ),
     );
@@ -537,12 +575,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Color.fromARGB(255, 240, 240, 240),
+                      color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87,
                       fontSize: 13,
                     ),
                   ),
                   Text(
-                    "Oynatma listesi • $count şarki",
+                    AppLocalizations.of(context).getTranslate("library_musicplaylist") + " • $count " + AppLocalizations.of(context).getTranslate("library_songCount"),
                     style: TextStyle(
                       color: Color.fromARGB(255, 150, 150, 150),
                       fontSize: 13,
@@ -552,7 +591,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ),
             ],
           ),
-          Icon(Icons.more_vert, color: Color.fromARGB(255, 240, 240, 240)),
+          Icon(Icons.more_vert, color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87),
         ],
       ),
     );
@@ -563,7 +603,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
       padding: EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       margin: EdgeInsets.only(left: 8, top: 8),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 45, 45, 45),
+        color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 45, 45, 45) : Color.fromARGB(255, 210, 210, 210),
         border: Border.all(
           color: Color.fromARGB(40, 255, 255, 255),
         ),
@@ -573,7 +614,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
         title,
         style: TextStyle(
           fontSize: 13,
-          color: Color.fromARGB(255, 240, 240, 240),
+          color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -582,7 +624,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget BottomMenu() {
     return Container(
-      color: Color.fromARGB(255, 40, 40, 40),
+      color: clientCubit.state.darkMode
+          ? Color.fromARGB(255, 40, 40, 40)
+          : Colors.white,
       width: double.infinity,
       height: 80,
       child: Row(
@@ -591,23 +635,23 @@ class _LibraryScreenState extends State<LibraryScreen> {
           InkWell(
             onTap: () => GoRouter.of(context).push("/home"),
             child: BottomMenuItems(
-                "Ana Sayfa", Icons.home_outlined, Icons.home, true),
+                AppLocalizations.of(context).getTranslate("bottomItem_home"), Icons.home_outlined, Icons.home, true),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/search"),
             child: BottomMenuItems(
-                "Ara", Icons.search_outlined, Icons.saved_search, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_search"), Icons.search_outlined, Icons.saved_search, false),
           ),
           InkWell(
             onTap:
                 () {}, // Zaten kütüphane sayfasında olduğumuzdan Navigator eklemedim
-            child: BottomMenuItems("Kitapliğin", Icons.library_music_outlined,
+            child: BottomMenuItems(AppLocalizations.of(context).getTranslate("bottomItem_library"), Icons.library_music_outlined,
                 Icons.library_music, false),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/profile"),
             child: BottomMenuItems(
-                "Profil", Icons.person_outline, Icons.person, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_profile"), Icons.person_outline, Icons.person, false),
           ),
         ],
       ),
@@ -626,14 +670,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
           Icon(
             changeIcon,
             size: 26,
-            color: Color.fromARGB(255, 234, 234, 234),
+            color: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 234, 234, 234)
+                : Colors.black87,
           ),
           SizedBox(height: 2),
           Text(
             iconName,
             style: TextStyle(
               fontSize: 10,
-              color: Color.fromARGB(255, 234, 234, 234),
+              color: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 234, 234, 234)
+                : Colors.black87,
             ),
           ),
         ],

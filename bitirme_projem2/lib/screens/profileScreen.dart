@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
+import '../bloc/client/client_cubit.dart';
+import '../engine/localizations.dart';
 import '../engine/storage.dart';
 import '../widgets/drawerItem.dart';
 
@@ -17,8 +20,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
-  bool switchChange = false;
+  late ClientCubit clientCubit;
 
   Map<String, dynamic> userInfo = {
     "Id": "",
@@ -32,8 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (user == null) {
       GoRouter.of(context).replace("/login");
-    }
-    else {
+    } else {
       setState(() {
         userInfo = user;
       });
@@ -166,26 +167,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     checkLogin();
+    clientCubit = context.read<ClientCubit>();
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: switchChange
+        backgroundColor: clientCubit.state.darkMode
             ? Color.fromARGB(255, 40, 32, 25)
             : Color.fromARGB(255, 251, 251, 251),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           iconTheme: IconThemeData(
-              color: switchChange
+              color: clientCubit.state.darkMode
                   ? Color.fromARGB(255, 185, 185, 185)
                   : Colors.black87),
           title: Text(
             "@berkayt",
             style: TextStyle(
-                color: switchChange
+                color: clientCubit.state.darkMode
                     ? Color.fromARGB(255, 225, 224, 223)
                     : Colors.black87),
           ),
@@ -195,18 +197,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Transform.scale(
                 scale: 0.8,
                 child: Switch(
-                  value: switchChange,
+                  value: clientCubit.state.darkMode,
                   onChanged: (value) {
                     setState(() {
-                      switchChange = value;
+                      clientCubit.changeDarkMode(darkMode: value);
                     });
                   },
                   activeThumbImage: AssetImage("assets/images/nightMode.png"),
                   inactiveThumbImage: AssetImage("assets/images/lightMode.png"),
                   activeTrackColor: Colors.white,
-                  trackOutlineColor: MaterialStatePropertyAll(switchChange
-                      ? Color.fromARGB(255, 185, 185, 185)
-                      : Colors.grey),
+                  trackOutlineColor: MaterialStatePropertyAll(
+                      clientCubit.state.darkMode
+                          ? Color.fromARGB(255, 185, 185, 185)
+                          : Colors.grey),
                   thumbColor: MaterialStatePropertyAll(Colors.white),
                 ),
               ),
@@ -214,8 +217,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         drawer: Drawer(
-          backgroundColor: Color.fromARGB(255, 251, 251, 251),
-          surfaceTintColor: Color.fromARGB(255, 251, 251, 251),
+          backgroundColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 40, 32, 25)
+                : Color.fromARGB(255, 251, 251, 251),
+              surfaceTintColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 40, 32, 25)
+                : Color.fromARGB(255, 251, 251, 251),
           child: Column(
             children: [
               Padding(
@@ -227,13 +234,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color.fromARGB(255, 132, 132, 132),
+                        color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 135, 64)
+                              : Color.fromARGB(255, 132, 132, 132),
                       ),
                       child: Container(
                         padding: EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white,
+                          color: clientCubit.state.darkMode
+                                ? Color.fromARGB(255, 30, 30, 30)
+                                : Colors.white,
                         ),
                         child: CircleAvatar(
                           backgroundImage:
@@ -246,7 +257,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       "${userInfo["Name"]}",
                       style: TextStyle(
-                        color: Colors.black87,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -261,12 +271,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color.fromARGB(136, 155, 155, 155),
                     ),
                     DrawerItem(
-                      name: "Oynatma Listeleri",
+                      name: AppLocalizations.of(context).getTranslate("drawer_playlists"),
                       icon: Icon(Icons.library_music, size: 22),
                       onTapRoute: () {
                         GoRouter.of(context).push("/library");
                       },
                     ),
+                    DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_findMusic"),
+                        icon: Icon(Icons.graphic_eq, size: 22),
+                        onTapRoute: () {
+                          GoRouter.of(context).push("/musicRecognize");
+                        },
+                      ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8.0, vertical: 15),
@@ -277,9 +294,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: 5,
                           ),
                           Text(
-                            "Bize Ulaşin",
+                            AppLocalizations.of(context).getTranslate("drawer_contact"),
                             style: TextStyle(
-                              color: Colors.black87,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
@@ -293,7 +309,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           InkWell(
                             onTap: () {
-                              final Uri uri = Uri.parse("https://github.com/deepString");
+                              final Uri uri =
+                                  Uri.parse("https://github.com/deepString");
                               launchUrl(uri);
                             },
                             child: Padding(
@@ -301,10 +318,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: SvgPicture.asset(
                                 "assets/icons/github.svg",
                                 height: 30,
+                                colorFilter: ColorFilter.mode(
+                                      clientCubit.state.darkMode
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      BlendMode.srcIn),
                               ),
                             ),
                           ),
-                          SizedBox(width: 5,),
+                          SizedBox(
+                            width: 5,
+                          ),
                           InkWell(
                             onTap: () {
                               final Uri uri = Uri.parse("tel:+901234567899");
@@ -319,7 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     DrawerItem(
-                      name: "Ayarlar",
+                      name: AppLocalizations.of(context).getTranslate("drawer_settings"),
                       icon: Icon(Icons.settings, size: 22),
                       onTapRoute: () {
                         GoRouter.of(context).push("/setting");
@@ -329,17 +353,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color.fromARGB(136, 155, 155, 155),
                     ),
                     DrawerItem(
-                      name: "Oturumu kapat",
+                      name: AppLocalizations.of(context).getTranslate("drawer_signOut"),
                       icon: Icon(Icons.logout_outlined, size: 22),
                       onTapRoute: () {
                         if (kIsWeb) {
                           logoutMaterial();
-                        } 
-                        else {
+                        } else {
                           if (Platform.isIOS || Platform.isMacOS) {
                             logoutIOS();
-                          } 
-                          else {
+                          } else {
                             logoutMaterial();
                           }
                         }
@@ -350,7 +372,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               Text(
                 "Version 1.0.0",
-                style: TextStyle(color: Colors.grey, fontSize: 11),
+                style: TextStyle(color: clientCubit.state.darkMode
+                          ? Color.fromARGB(200, 255, 255, 255)
+                          : Colors.grey, fontSize: 11),
               ),
               SizedBox(
                 height: 10,
@@ -372,20 +396,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
                                     width: 150,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: switchChange
+                                      color: clientCubit.state.darkMode
                                           ? Color.fromARGB(255, 240, 135, 64)
                                           : Colors.black87,
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.add,
@@ -408,7 +434,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
@@ -416,17 +443,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     height: 40,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: Color.fromARGB(221, 212, 212, 212),
+                                        color:
+                                            Color.fromARGB(221, 212, 212, 212),
                                       ),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           "MESSAGE",
                                           style: TextStyle(
-                                            color: switchChange
+                                            color: clientCubit.state.darkMode
                                                 ? Colors.white
                                                 : Colors.black87,
                                             fontSize: 12,
@@ -453,13 +482,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   indicator: UnderlineTabIndicator(
                                     borderSide: BorderSide(
                                       width: 3,
-                                      color: switchChange
+                                      color: clientCubit.state.darkMode
                                           ? Color.fromARGB(255, 240, 135, 64)
                                           : Colors.black87,
                                     ),
                                   ),
-                                  indicatorPadding: EdgeInsets.symmetric(vertical: 3),
-                                  labelColor: switchChange
+                                  indicatorPadding:
+                                      EdgeInsets.symmetric(vertical: 3),
+                                  labelColor: clientCubit.state.darkMode
                                       ? Color.fromARGB(255, 225, 224, 223)
                                       : Colors.black87,
                                   overlayColor: MaterialStatePropertyAll(
@@ -471,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   tabs: [
                                     Tab(
                                       child: Text(
-                                        "Portföy",
+                                        AppLocalizations.of(context).getTranslate("profile_portfolio"),
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400,
@@ -480,7 +510,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     Tab(
                                       child: Text(
-                                        "Playlist",
+                                        AppLocalizations.of(context).getTranslate("profile_playlist2"),
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400,
@@ -494,14 +524,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: TabBarView(
                                     children: [
                                       Container(
-                                        child: Center(child: Text("Fotoğraflar")),
+                                        child:
+                                            Center(child: Text(AppLocalizations.of(context).getTranslate("profile_photo"))),
                                       ),
                                       Container(
                                         child: Column(
                                           children: [
                                             SingleChildScrollView(
-                                              scrollDirection:
-                                                  Axis.horizontal,
+                                              scrollDirection: Axis.horizontal,
                                               child: Row(
                                                 children: [
                                                   playlistItem(
@@ -534,19 +564,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                                 Expanded(
                                                   child: Divider(
-                                                    color: switchChange
+                                                    color: clientCubit
+                                                            .state.darkMode
                                                         ? Color.fromARGB(
                                                             41, 255, 255, 255)
-                                                        : Colors
-                                                            .grey.shade300,
+                                                        : Colors.grey.shade300,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                             Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceAround,
+                                                  MainAxisAlignment.spaceAround,
                                               children: [
                                                 InkWell(
                                                   onTap: () {},
@@ -557,17 +586,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     child: Row(
                                                       children: [
                                                         Icon(
-                                                          Icons
-                                                              .favorite_border,
-                                                          color: switchChange
-                                                              ? Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      240,
-                                                                      135,
-                                                                      64)
-                                                              : Colors
-                                                                  .black87,
+                                                          Icons.favorite_border,
+                                                          color: clientCubit
+                                                                  .state
+                                                                  .darkMode
+                                                              ? Color.fromARGB(
+                                                                  255,
+                                                                  240,
+                                                                  135,
+                                                                  64)
+                                                              : Colors.black87,
                                                         ),
                                                         SizedBox(
                                                           width: 5,
@@ -576,9 +604,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           "120",
                                                           style: TextStyle(
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold,
-                                                            color: switchChange
+                                                                FontWeight.bold,
+                                                            color: clientCubit
+                                                                    .state
+                                                                    .darkMode
                                                                 ? Color
                                                                     .fromARGB(
                                                                         255,
@@ -604,15 +633,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                         Icon(
                                                           Icons
                                                               .chat_bubble_outline,
-                                                          color: switchChange
-                                                              ? Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      240,
-                                                                      135,
-                                                                      64)
-                                                              : Colors
-                                                                  .black87,
+                                                          color: clientCubit
+                                                                  .state
+                                                                  .darkMode
+                                                              ? Color.fromARGB(
+                                                                  255,
+                                                                  240,
+                                                                  135,
+                                                                  64)
+                                                              : Colors.black87,
                                                         ),
                                                         SizedBox(
                                                           width: 5,
@@ -621,9 +650,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           "Yorum",
                                                           style: TextStyle(
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold,
-                                                            color: switchChange
+                                                                FontWeight.bold,
+                                                            color: clientCubit
+                                                                    .state
+                                                                    .darkMode
                                                                 ? Color
                                                                     .fromARGB(
                                                                         255,
@@ -648,15 +678,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       children: [
                                                         Icon(
                                                           Icons.share,
-                                                          color: switchChange
-                                                              ? Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      240,
-                                                                      135,
-                                                                      64)
-                                                              : Colors
-                                                                  .black87,
+                                                          color: clientCubit
+                                                                  .state
+                                                                  .darkMode
+                                                              ? Color.fromARGB(
+                                                                  255,
+                                                                  240,
+                                                                  135,
+                                                                  64)
+                                                              : Colors.black87,
                                                         ),
                                                         SizedBox(
                                                           width: 5,
@@ -665,9 +695,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           "Paylaş",
                                                           style: TextStyle(
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold,
-                                                            color: switchChange
+                                                                FontWeight.bold,
+                                                            color: clientCubit
+                                                                    .state
+                                                                    .darkMode
                                                                 ? Color
                                                                     .fromARGB(
                                                                         255,
@@ -737,7 +768,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   overflow: TextOverflow.ellipsis,
                   softWrap: true,
                   style: TextStyle(
-                    color: switchChange
+                    color: clientCubit.state.darkMode
                         ? Color.fromARGB(255, 225, 224, 223)
                         : Colors.black87,
                     fontSize: 16,
@@ -760,7 +791,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget BottomMenu() {
     return Container(
-      color: switchChange ? Color.fromARGB(255, 35, 28, 21) : Colors.white,
+      color: clientCubit.state.darkMode
+          ? Color.fromARGB(255, 35, 28, 21)
+          : Colors.white,
       width: double.infinity,
       height: 80,
       child: Row(
@@ -769,16 +802,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           InkWell(
             onTap: () => GoRouter.of(context).push("/home"),
             child: BottomMenuItems(
-                "Ana Sayfa", Icons.home_outlined, Icons.home, true),
+                AppLocalizations.of(context).getTranslate("bottomItem_home"), Icons.home_outlined, Icons.home, true),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/search"),
             child: BottomMenuItems(
-                "Ara", Icons.search_outlined, Icons.saved_search, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_search"), Icons.search_outlined, Icons.saved_search, false),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/library"),
-            child: BottomMenuItems("Kitapliğin", Icons.library_music_outlined,
+            child: BottomMenuItems(AppLocalizations.of(context).getTranslate("bottomItem_library"), Icons.library_music_outlined,
                 Icons.library_music, false),
           ),
           InkWell(
@@ -786,7 +819,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               //Navigator.pushNamed(context, '/profile'); // Zaten profil sayfasında olduğumuzdan burası kapalı
             },
             child: BottomMenuItems(
-                "Profil", Icons.person_outline, Icons.person, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_profile"), Icons.person_outline, Icons.person, false),
           ),
         ],
       ),
@@ -805,7 +838,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icon(
             changeIcon,
             size: 26,
-            color: switchChange
+            color: clientCubit.state.darkMode
                 ? Color.fromARGB(255, 225, 224, 223)
                 : Colors.black87,
           ),
@@ -814,7 +847,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             iconName,
             style: TextStyle(
               fontSize: 10,
-              color: switchChange
+              color: clientCubit.state.darkMode
                   ? Color.fromARGB(255, 225, 224, 223)
                   : Colors.black87,
             ),
@@ -834,14 +867,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               InkWell(
                 onTap: () {},
-                child: profileSection("153K", "Takipçi"),
+                child: profileSection("153K", AppLocalizations.of(context).getTranslate("profile_follower")),
               ),
               SizedBox(
                 height: 12,
               ),
               InkWell(
                 onTap: () {},
-                child: profileSection("100K", "Takip"),
+                child: profileSection("100K", AppLocalizations.of(context).getTranslate("profile_follow")),
               ),
             ],
           ),
@@ -856,7 +889,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       begin: Alignment.topRight,
                       end: Alignment.bottomLeft,
                       stops: [0.0, 0.3, 0.0, 0.0, 1],
-                      colors: switchChange
+                      colors: clientCubit.state.darkMode
                           ? [
                               Color.fromARGB(255, 40, 32, 25),
                               Color.fromARGB(255, 40, 32, 25),
@@ -877,7 +910,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Container(
                     padding: EdgeInsets.all(7),
                     decoration: BoxDecoration(
-                      color: switchChange
+                      color: clientCubit.state.darkMode
                           ? Color.fromARGB(255, 40, 32, 25)
                           : Color.fromARGB(255, 251, 251, 251),
                       shape: BoxShape.circle,
@@ -897,7 +930,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     "Berkay T",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: switchChange
+                      color: clientCubit.state.darkMode
                           ? Color.fromARGB(255, 225, 224, 223)
                           : Colors.black87,
                       fontSize: 18,
@@ -926,7 +959,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          profileSection("4", "PLAYLİST"),
+          profileSection("4", AppLocalizations.of(context).getTranslate("profile_playlist")),
         ],
       ),
     );
@@ -938,7 +971,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           number,
           style: TextStyle(
-            color: switchChange
+            color: clientCubit.state.darkMode
                 ? Color.fromARGB(255, 225, 224, 223)
                 : Colors.black87,
             fontSize: 18,

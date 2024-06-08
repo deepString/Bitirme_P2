@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
+import '../bloc/client/client_cubit.dart';
+import '../engine/localizations.dart';
 import '../engine/storage.dart';
 import '../widgets/drawerItem.dart';
 
@@ -18,6 +21,8 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  late ClientCubit clientCubit;
+
   Map<String, dynamic> userInfo = {
     "Id": "",
     "Name": "",
@@ -163,231 +168,260 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     checkLogin();
+    clientCubit = context.read<ClientCubit>();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Color.fromARGB(
-            255, 30, 30, 30), // Color.fromARGB(255, 251, 251, 251),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: Text(
-            "Ara",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 19,
-              fontWeight: FontWeight.w600,
+    return BlocBuilder<ClientCubit, ClientState>(
+      builder: (context, state) {
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: clientCubit.state.darkMode
+              ? Color.fromARGB(
+                255, 30, 30, 30) : Color.fromARGB(255, 251, 251, 251),
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              title: Text(
+                AppLocalizations.of(context).getTranslate("search_appbar"),
+                style: TextStyle(
+                  color: clientCubit.state.darkMode
+              ? Colors.white : Colors.black87,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              iconTheme: IconThemeData(
+                color: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 234, 234, 234) : Colors.black87,
+              ),
             ),
-          ),
-          iconTheme: IconThemeData(
-            color: Color.fromARGB(255, 234, 234, 234),
-          ),
-        ),
-        drawer: Drawer(
-          backgroundColor: Color.fromARGB(255, 251, 251, 251),
-          surfaceTintColor: Color.fromARGB(255, 251, 251, 251),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 6, left: 6, top: 50, bottom: 30),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromARGB(255, 132, 132, 132),
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: CircleAvatar(
-                          backgroundImage:
-                              AssetImage("assets/images/profil1.jpg"),
-                          radius: 40,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "${userInfo["Name"]}",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: "Oynatma Listeleri",
-                      icon: Icon(Icons.library_music, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/library");
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 15),
-                      child: Row(
-                        children: [
-                          Icon(Icons.message, size: 22),
-                          SizedBox(
-                            width: 5,
+            drawer: Drawer(
+              backgroundColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 30, 30, 30)
+                : Color.fromARGB(255, 251, 251, 251),
+              surfaceTintColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 30, 30, 30)
+                : Color.fromARGB(255, 251, 251, 251),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        right: 6, left: 6, top: 50, bottom: 30),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 135, 64)
+                              : Color.fromARGB(255, 132, 132, 132),
                           ),
-                          Text(
-                            "Bize Ulaşin",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: clientCubit.state.darkMode
+                                ? Color.fromARGB(255, 30, 30, 30)
+                                : Colors.white,
+                            ),
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  AssetImage("assets/images/profil1.jpg"),
+                              radius: 40,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "${userInfo["Name"]}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              final Uri uri =
-                                  Uri.parse("https://github.com/deepString");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: SvgPicture.asset(
-                                "assets/icons/github.svg",
-                                height: 30,
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Divider(
+                          color: Color.fromARGB(136, 155, 155, 155),
+                        ),
+                        DrawerItem(
+                          name: AppLocalizations.of(context).getTranslate("drawer_playlists"),
+                          icon: Icon(Icons.library_music, size: 22),
+                          onTapRoute: () {
+                            GoRouter.of(context).push("/library");
+                          },
+                        ),
+                        DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_findMusic"),
+                        icon: Icon(Icons.graphic_eq, size: 22),
+                        onTapRoute: () {
+                          GoRouter.of(context).push("/musicRecognize");
+                        },
+                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 15),
+                          child: Row(
+                            children: [
+                              Icon(Icons.message, size: 22),
+                              SizedBox(
+                                width: 5,
                               ),
-                            ),
+                              Text(
+                                AppLocalizations.of(context).getTranslate("drawer_contact"),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              final Uri uri = Uri.parse("tel:+901234567899");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(Icons.phone),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DrawerItem(
-                      name: "Ayarlar",
-                      icon: Icon(Icons.settings, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/setting");
-                      },
-                    ),
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: "Oturumu kapat",
-                      icon: Icon(Icons.logout_outlined, size: 22),
-                      onTapRoute: () {
-                        if (kIsWeb) {
-                          logoutMaterial();
-                        } else {
-                          if (Platform.isIOS || Platform.isMacOS) {
-                            logoutIOS();
-                          } else {
-                            logoutMaterial();
-                          }
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "Version 1.0.0",
-                style: TextStyle(color: Colors.grey, fontSize: 11),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Container(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SearchBox(),
-                      TitleItem("Müzik türlerini keşfet"),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            MusicGenreFrame(
-                                "assets/images/searchMusic1.jpg", "#slow pop"),
-                            MusicGenreFrame(
-                                "assets/images/searchMusic2.avif", "#rock"),
-                            MusicGenreFrame(
-                                "assets/images/searchMusic3.webp", "#rap"),
-                            MusicGenreFrame(
-                                "assets/images/searchMusic4.jpg", "#jazz"),
-                            Gap(14),
-                          ],
                         ),
-                      ),
-                      TitleItem("Hepsine göz at"),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  final Uri uri =
+                                      Uri.parse("https://github.com/deepString");
+                                  launchUrl(uri);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: SvgPicture.asset(
+                                    "assets/icons/github.svg",
+                                    height: 30,
+                                    colorFilter: ColorFilter.mode(
+                                      clientCubit.state.darkMode
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      BlendMode.srcIn),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  final Uri uri = Uri.parse("tel:+901234567899");
+                                  launchUrl(uri);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Icon(Icons.phone),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        DrawerItem(
+                          name: AppLocalizations.of(context).getTranslate("drawer_settings"),
+                          icon: Icon(Icons.settings, size: 22),
+                          onTapRoute: () {
+                            GoRouter.of(context).push("/setting");
+                          },
+                        ),
+                        Divider(
+                          color: Color.fromARGB(136, 155, 155, 155),
+                        ),
+                        DrawerItem(
+                          name: AppLocalizations.of(context).getTranslate("drawer_signOut"),
+                          icon: Icon(Icons.logout_outlined, size: 22),
+                          onTapRoute: () {
+                            if (kIsWeb) {
+                              logoutMaterial();
+                            } else {
+                              if (Platform.isIOS || Platform.isMacOS) {
+                                logoutIOS();
+                              } else {
+                                logoutMaterial();
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "Version 1.0.0",
+                    style: TextStyle(color: clientCubit.state.darkMode
+                          ? Color.fromARGB(200, 255, 255, 255)
+                          : Colors.grey, fontSize: 11),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AllMusicGenreFrame("assets/images/searchGenre1.jpg", "Podcasts"),
-                          AllMusicGenreFrame("assets/images/searchGenre2.jpg", "Pop"),
+                          SearchBox(),
+                          TitleItem(AppLocalizations.of(context).getTranslate("search_title1")),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                MusicGenreFrame(
+                                    "assets/images/searchMusic1.jpg", "#slow pop"),
+                                MusicGenreFrame(
+                                    "assets/images/searchMusic2.avif", "#rock"),
+                                MusicGenreFrame(
+                                    "assets/images/searchMusic3.webp", "#rap"),
+                                MusicGenreFrame(
+                                    "assets/images/searchMusic4.jpg", "#jazz"),
+                                Gap(14),
+                              ],
+                            ),
+                          ),
+                          TitleItem(AppLocalizations.of(context).getTranslate("search_title2")),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AllMusicGenreFrame("assets/images/searchGenre1.jpg", "Podcasts"),
+                              AllMusicGenreFrame("assets/images/searchGenre2.jpg", "Pop"),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AllMusicGenreFrame("assets/images/searchGenre3.avif", "Rock"),
+                              AllMusicGenreFrame("assets/images/searchGenre4.jpg", "Metal"),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AllMusicGenreFrame("assets/images/searchGenre5.jpg", "Jazz"),
+                              AllMusicGenreFrame("assets/images/searchGenre6.avif", "K-pop"),
+                            ],
+                          ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AllMusicGenreFrame("assets/images/searchGenre3.avif", "Rock"),
-                          AllMusicGenreFrame("assets/images/searchGenre4.jpg", "Metal"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AllMusicGenreFrame("assets/images/searchGenre5.jpg", "Jazz"),
-                          AllMusicGenreFrame("assets/images/searchGenre6.avif", "K-pop"),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                BottomMenu(),
+              ],
             ),
-            BottomMenu(),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
@@ -495,7 +529,8 @@ class _SearchScreenState extends State<SearchScreen> {
       padding: EdgeInsets.only(left: 15, right: 10),
       height: 45,
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 245, 245, 247),
+        color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 245, 245, 247) : Color.fromARGB(255, 235, 235, 235),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -508,9 +543,15 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: TextField(
               cursorColor: Color.fromARGB(255, 113, 113, 113),
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
               decoration: InputDecoration(
+                fillColor: Colors.transparent,
+                hoverColor: Colors.transparent,
                 isDense: true,
-                hintText: "Şarki ara",
+                hintText: AppLocalizations.of(context).getTranslate("search_searchMusic"),
                 hintStyle: TextStyle(
                   color: Color.fromARGB(255, 75, 75, 75),
                   fontSize: 15,
@@ -540,7 +581,8 @@ class _SearchScreenState extends State<SearchScreen> {
         title,
         style: TextStyle(
           fontSize: 15,
-          color: Color.fromARGB(255, 240, 240, 240),
+          color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 240, 240) : Colors.black87,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -549,7 +591,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget BottomMenu() {
     return Container(
-      color: Color.fromARGB(255, 40, 40, 40),
+      color: clientCubit.state.darkMode
+          ? Color.fromARGB(255, 40, 40, 40)
+          : Colors.white,
       width: double.infinity,
       height: 80,
       child: Row(
@@ -558,23 +602,23 @@ class _SearchScreenState extends State<SearchScreen> {
           InkWell(
             onTap: () => GoRouter.of(context).push("/home"),
             child: BottomMenuItems(
-                "Ana Sayfa", Icons.home_outlined, Icons.home, true),
+                AppLocalizations.of(context).getTranslate("bottomItem_home"), Icons.home_outlined, Icons.home, true),
           ),
           InkWell(
             onTap:
                 () {}, // Zaten arama sayfasında olduğumuzdan Navigator eklemedim
             child: BottomMenuItems(
-                "Ara", Icons.search_outlined, Icons.saved_search, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_search"), Icons.search_outlined, Icons.saved_search, false),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/library"),
-            child: BottomMenuItems("Kitapliğin", Icons.library_music_outlined,
+            child: BottomMenuItems(AppLocalizations.of(context).getTranslate("bottomItem_library"), Icons.library_music_outlined,
                 Icons.library_music, false),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/profile"),
             child: BottomMenuItems(
-                "Profil", Icons.person_outline, Icons.person, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_profile"), Icons.person_outline, Icons.person, false),
           ),
         ],
       ),
@@ -593,14 +637,18 @@ class _SearchScreenState extends State<SearchScreen> {
           Icon(
             changeIcon,
             size: 26,
-            color: Color.fromARGB(255, 234, 234, 234),
+            color: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 234, 234, 234)
+                : Colors.black87,
           ),
           SizedBox(height: 2),
           Text(
             iconName,
             style: TextStyle(
               fontSize: 10,
-              color: Color.fromARGB(255, 234, 234, 234),
+              color: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 234, 234, 234)
+                : Colors.black87,
             ),
           ),
         ],

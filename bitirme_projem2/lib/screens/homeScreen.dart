@@ -7,7 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
+import '../bloc/client/client_cubit.dart';
 import '../bloc/favorites/favorites_cubit.dart';
+import '../engine/localizations.dart';
 import '../engine/storage.dart';
 import '../widgets/drawerItem.dart';
 
@@ -19,7 +21,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   var musicsData = [
     {
       "id": 1,
@@ -72,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   late FavoritesCubit favoritesCubit;
+  late ClientCubit clientCubit;
 
   Map<String, dynamic> userInfo = {
     "Id": "",
@@ -85,14 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (user == null) {
       GoRouter.of(context).replace("/login");
-    }
-    else {
+    } else {
       setState(() {
         userInfo = user;
       });
     }
   }
-  
+
   logoutMaterial() async {
     showDialog(
       context: context,
@@ -220,686 +221,848 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     checkLogin();
     favoritesCubit = context.read<FavoritesCubit>();
+    clientCubit = context.read<ClientCubit>();
   }
 
   @override
   Widget build(BuildContext context) {
-
     var size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 30, 30, 30),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          toolbarHeight: 70,
-          iconTheme: IconThemeData(
-            color: Color.fromARGB(255, 234, 234, 234),
-          ),
-          actions: [
-            InkWell(
-              onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: SvgPicture.asset(
-                  "assets/icons/podcasts.svg",
-                  height: 21,
-                  colorFilter: ColorFilter.mode(
-                      Color.fromARGB(255, 234, 234, 234), BlendMode.srcIn),
-                ),
-              ),
+    return BlocBuilder<ClientCubit, ClientState>(
+      builder: (context, state) {
+      return SafeArea(
+        child: Scaffold(
+          backgroundColor: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 30, 30, 30)
+              : Color.fromARGB(255, 251, 251, 251),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            toolbarHeight: 70,
+            iconTheme: IconThemeData(
+              color: clientCubit.state.darkMode
+                  ? Color.fromARGB(255, 234, 234, 234)
+                  : Colors.black87,
             ),
-            InkWell(
-              onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: SvgPicture.asset(
-                  "assets/icons/notification.svg",
-                  height: 21,
-                  colorFilter: ColorFilter.mode(
-                      Color.fromARGB(255, 234, 234, 234), BlendMode.srcIn),
+            actions: [
+              InkWell(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: SvgPicture.asset(
+                    "assets/icons/podcasts.svg",
+                    height: 21,
+                    colorFilter: ColorFilter.mode(
+                        clientCubit.state.darkMode
+                            ? Color.fromARGB(255, 234, 234, 234)
+                            : Colors.black87,
+                        BlendMode.srcIn),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 10,),
-          ],
-        ),
-        drawer: Drawer(
-          backgroundColor: Color.fromARGB(255, 251, 251, 251),
-          surfaceTintColor: Color.fromARGB(255, 251, 251, 251),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 6, left: 6, top: 50, bottom: 30),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromARGB(255, 132, 132, 132),
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: CircleAvatar(
-                          backgroundImage:
-                              AssetImage("assets/images/profil1.jpg"),
-                          radius: 40,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "${userInfo["Name"]}",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+              InkWell(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: SvgPicture.asset(
+                    "assets/icons/notification.svg",
+                    height: 21,
+                    colorFilter: ColorFilter.mode(
+                        clientCubit.state.darkMode
+                            ? Color.fromARGB(255, 234, 234, 234)
+                            : Colors.black87,
+                        BlendMode.srcIn),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: "Oynatma Listeleri",
-                      icon: Icon(Icons.library_music, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/library");
-                      },
-                    ),
-                    DrawerItem(
-                      name: "Müzik Bul",
-                      icon: Icon(Icons.graphic_eq, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/musicRecognize");
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 15),
-                      child: Row(
-                        children: [
-                          Icon(Icons.message, size: 22),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            "Bize Ulaşin",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              final Uri uri = Uri.parse("https://github.com/deepString");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: SvgPicture.asset(
-                                "assets/icons/github.svg",
-                                height: 30,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5,),
-                          InkWell(
-                            onTap: () {
-                              final Uri uri = Uri.parse("tel:+901234567899");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(Icons.phone),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DrawerItem(
-                      name: "Ayarlar",
-                      icon: Icon(Icons.settings, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/setting");
-                      },
-                    ),
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: "Oturumu kapat",
-                      icon: Icon(Icons.logout_outlined, size: 22),
-                      onTapRoute: () {
-                        if (kIsWeb) {
-                          logoutMaterial();
-                        } 
-                        else {
-                          if (Platform.isIOS || Platform.isMacOS) {
-                            logoutIOS();
-                          } 
-                          else {
-                            logoutMaterial();
-                          }
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "Version 1.0.0",
-                style: TextStyle(color: Colors.grey, fontSize: 11),
               ),
               SizedBox(
-                height: 10,
+                width: 10,
               ),
             ],
           ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Container(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          drawer: Drawer(
+            backgroundColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 30, 30, 30)
+                : Color.fromARGB(255, 251, 251, 251),
+            surfaceTintColor: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 30, 30, 30)
+                : Color.fromARGB(255, 251, 251, 251),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                      right: 6, left: 6, top: 50, bottom: 30),
+                  child: Row(
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            YourStoryItem("assets/images/profil1.jpg", "${userInfo["Name"]}"),
-                            StoryItem("assets/images/profile3.jpg", "Profil 1"),
-                            StoryItem("assets/images/profile4.jpg", "Profil 2"),
-                            StoryItem("assets/images/profile2.jpg", "Profil 3"),
-                            StoryItem("assets/images/profile6.jpg", "Profil 4"),
-                            StoryItem("assets/images/profile5.webp", "Profil 5"),
-                            StoryItem("assets/images/profile3.jpg", "Profil 6"),
-                            StoryItem("assets/images/profile4.jpg", "Profil 7"),
-                            StoryItem("assets/images/profile2.jpg", "Profil 8"),
-                            StoryItem("assets/images/profile5.webp", "Profil 9"),
-                          ],
+                      Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: clientCubit.state.darkMode
+                              ? Color.fromARGB(255, 240, 135, 64)
+                              : Color.fromARGB(255, 132, 132, 132),
                         ),
-                      ),
-                      SizedBox(height: 20,),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        child: Text(
-                          "Hoşgeldin ${userInfo["Name"]}",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 240, 240, 240),
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: clientCubit.state.darkMode
+                                ? Color.fromARGB(255, 30, 30, 30)
+                                : Colors.white,
+                          ),
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage("assets/images/profil1.jpg"),
+                            radius: 40,
                           ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              width: size.width / 2 - 25,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 50, 50, 50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Color.fromARGB(255, 97, 60, 233),
-                                          Color.fromARGB(255, 173, 205, 205),
-                                        ],
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.favorite,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Beğenilen Şarkilar Playlistiiiii",
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 225, 225, 225),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              width: size.width / 2 - 25,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 50, 50, 50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/chrismasImage.jpg"),
-                                          fit: BoxFit.fill),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Yilbaşi",
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 225, 225, 225),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              width: size.width / 2 - 25,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 50, 50, 50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/playlistImage4.jpg"),
-                                          fit: BoxFit.fill),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Yabanci",
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 225, 225, 225),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              width: size.width / 2 - 25,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 50, 50, 50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/playlistImage2.jpg"),
-                                          fit: BoxFit.fill),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Türkçe",
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 225, 225, 225),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              width: size.width / 2 - 25,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 50, 50, 50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/playlistImage5.jpg"),
-                                          fit: BoxFit.fill),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Modun Kötüyse",
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 225, 225, 225),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              width: size.width / 2 - 25,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 50, 50, 50),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/playlistImage6.webp"),
-                                          fit: BoxFit.fill),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "Slow",
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 225, 225, 225),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20,),
-                      SoloTitleItem("Yeniden dinleyin"),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 2,),
-                            ListenAgainFrame("assets/images/musicIgnite.jpg", "Ignite (feat. Alan Walker, Julie Bergan ve SEUNGRI)"),
-                            ListenAgainPlaylistFrame("assets/images/playlistImage2.jpg", "Türkçe"),
-                            ListenAgainFrame("assets/images/musicImgood.jpg", "I'm good (Blue) - David Guetta & Bebe Rexha"),
-                            ListenAgainFrame("assets/images/musicImparator.jpg", "IMPARATOR - Sefo"),
-                            ListenAgainFrame("assets/images/musicKor.jpg", "Kor - Emir Can İğrek"),
-                            ListenAgainFrame("assets/images/musicSeninugruna.jpg", "SENIN UGRUNA - UZI"),
-                            ListenAgainPlaylistFrame("assets/images/playlistImage6.webp", "Slow"),
-                          ],
+                      SizedBox(width: 10),
+                      Text(
+                        "${userInfo["Name"]}",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      TitleItem("Sizin için derlenenler", "Diğer"),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 2,),
-                            PlaylistFrame("assets/images/playlistImage7.jpg", "Supermix'im", "David Guetta, INNA ve J Balvin"),
-                            PlaylistFrame("assets/images/playlistImage8.jpg", "Karişik Listem 1", "Sean Paul, Pitbull ve Marron 5"),
-                            PlaylistFrame("assets/images/playlistImage9.jpg", "Karişik Listem 2", "Sefo, UZI, Çakal, ate ve Lvbel C5"),
-                            PlaylistFrame("assets/images/playlistImage7.jpg", "Supermix'im", "David Guetta, INNA ve J Balvin"),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Text(
-                          "BİR ŞARKIDAN RADYO BAŞLATIN",
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 150, 150, 150),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                      TitleItem("Hizli seçimler", "Tümünü oynat"),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            Column(
-                              children: [
-                                QuickPicksMusic(size, "assets/images/musicKor.jpg", "Kor", "Emir Can İğrek"),
-                                QuickPicksMusic(size, "assets/images/musicIgnite.jpg", "Ignite", "K-391 & Alan Walker"),
-                                QuickPicksMusic(size, "assets/images/musicImgood.jpg", "I'm Good (blue)", "David Guetta & Bebe Rexha"),
-                                QuickPicksMusic(size, "assets/images/musicImparator.jpg", "IMPARATOR", "Sefo"),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                QuickPicksMusic(size, "assets/images/musicSeninugruna.jpg", "SENIN UGRUNA", "UZI"),
-                                QuickPicksMusic(size, "assets/images/musicImparator.jpg", "IMPARATOR", "Sefo"),
-                                QuickPicksMusic(size, "assets/images/musicKor.jpg", "Kor", "Emir Can İğrek"),
-                                QuickPicksMusic(size, "assets/images/musicIgnite.jpg", "Ignite", "K-391 & Alan Walker"),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      SoloTitleItem("Topluluktan"),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            PlaylistFrame("assets/images/playlistImage10.png", "Arabada Yabanci", "Profil x • 2,7 B görüntülenme"),
-                            PlaylistFrame("assets/images/playlistImage12.jpg", "Sakin Türkçe", "Profil xx • 268 B görüntülenme"),
-                            PlaylistFrame("assets/images/playlistImage11.jpg", "Yabanci Hit", "Profil 8 • 2,8 B görüntülenme"),
-                            PlaylistFrame("assets/images/playlistImage2.jpg", "Karişik", "Profil 11 • 1,6 B görüntülenme"),
-                          ],
-                        ),
-                      ),
-                      SoloTitleItem("Önerilen Müzikler"),
-                      RecommendedMusicList(size),
                     ],
                   ),
                 ),
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 40, 40, 40),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color.fromARGB(255, 70, 70, 70),
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+                Expanded(
+                  child: Column(
                     children: [
-                      SizedBox(width: 10,),
+                      Divider(
+                        color: Color.fromARGB(136, 155, 155, 155),
+                      ),
+                      DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_playlists"),
+                        icon: Icon(Icons.library_music, size: 22),
+                        onTapRoute: () {
+                          GoRouter.of(context).push("/library");
+                        },
+                      ),
+                      DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_findMusic"),
+                        icon: Icon(Icons.graphic_eq, size: 22),
+                        onTapRoute: () {
+                          GoRouter.of(context).push("/musicRecognize");
+                        },
+                      ),
                       Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Container(
-                          margin: EdgeInsets.symmetric(vertical: 3),
-                          height: 60,
-                          width: 60,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/musicImgood.jpg"),
-                              fit: BoxFit.fill,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 15),
+                        child: Row(
+                          children: [
+                            Icon(Icons.message, size: 22),
+                            SizedBox(
+                              width: 5,
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                            Text(
+                              AppLocalizations.of(context).getTranslate("drawer_contact"),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        width: 15,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                final Uri uri =
+                                    Uri.parse("https://github.com/deepString");
+                                launchUrl(uri);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: SvgPicture.asset(
+                                  "assets/icons/github.svg",
+                                  height: 30,
+                                  colorFilter: ColorFilter.mode(
+                                      clientCubit.state.darkMode
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                final Uri uri = Uri.parse("tel:+901234567899");
+                                launchUrl(uri);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: Icon(Icons.phone),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "I'm Good (blue)",
+                      DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_settings"),
+                        icon: Icon(Icons.settings, size: 22),
+                        onTapRoute: () {
+                          GoRouter.of(context).push("/setting");
+                        },
+                      ),
+                      Divider(
+                        color: Color.fromARGB(136, 155, 155, 155),
+                      ),
+                      DrawerItem(
+                        name: AppLocalizations.of(context).getTranslate("drawer_signOut"),
+                        icon: Icon(Icons.logout_outlined, size: 22),
+                        onTapRoute: () {
+                          if (kIsWeb) {
+                            logoutMaterial();
+                          } else {
+                            if (Platform.isIOS || Platform.isMacOS) {
+                              logoutIOS();
+                            } else {
+                              logoutMaterial();
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  "Version 1.0.0",
+                  style: TextStyle(
+                      color: clientCubit.state.darkMode
+                          ? Color.fromARGB(200, 255, 255, 255)
+                          : Colors.grey,
+                      fontSize: 11),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Container(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              YourStoryItem("assets/images/profil1.jpg",
+                                  "${userInfo["Name"]}"),
+                              StoryItem(
+                                  "assets/images/profile3.jpg", "Profil 1"),
+                              StoryItem(
+                                  "assets/images/profile4.jpg", "Profil 2"),
+                              StoryItem(
+                                  "assets/images/profile2.jpg", "Profil 3"),
+                              StoryItem(
+                                  "assets/images/profile6.jpg", "Profil 4"),
+                              StoryItem(
+                                  "assets/images/profile5.webp", "Profil 5"),
+                              StoryItem(
+                                  "assets/images/profile3.jpg", "Profil 6"),
+                              StoryItem(
+                                  "assets/images/profile4.jpg", "Profil 7"),
+                              StoryItem(
+                                  "assets/images/profile2.jpg", "Profil 8"),
+                              StoryItem(
+                                  "assets/images/profile5.webp", "Profil 9"),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 10),
+                          child: Text(
+                            AppLocalizations.of(context).getTranslate("home_welcome") + " ${userInfo["Name"]}",
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
+                              fontSize: 20,
+                              color: clientCubit.state.darkMode
+                                  ? Color.fromARGB(255, 240, 240, 240)
+                                  : Colors.black87,
                             ),
                           ),
-                          Text(
-                            "David Guetta & Bebe Rexha",
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                width: size.width / 2 - 25,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 50, 50, 50)
+                                      : Color.fromARGB(50, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10)),
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color.fromARGB(255, 97, 60, 233),
+                                            Color.fromARGB(255, 173, 205, 205),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.favorite,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "Beğenilen Şarkilar Playlistiiiii",
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          color: clientCubit.state.darkMode
+                                              ? Color.fromARGB(
+                                                  255, 225, 225, 225)
+                                              : Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                width: size.width / 2 - 25,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 50, 50, 50)
+                                      : Color.fromARGB(50, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/chrismasImage.jpg"),
+                                            fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "Yilbaşi",
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          color: clientCubit.state.darkMode
+                                              ? Color.fromARGB(
+                                                  255, 225, 225, 225)
+                                              : Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                width: size.width / 2 - 25,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 50, 50, 50)
+                                      : Color.fromARGB(50, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/playlistImage4.jpg"),
+                                            fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "Yabanci",
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          color: clientCubit.state.darkMode
+                                              ? Color.fromARGB(
+                                                  255, 225, 225, 225)
+                                              : Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                width: size.width / 2 - 25,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 50, 50, 50)
+                                      : Color.fromARGB(50, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/playlistImage2.jpg"),
+                                            fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "Türkçe",
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          color: clientCubit.state.darkMode
+                                              ? Color.fromARGB(
+                                                  255, 225, 225, 225)
+                                              : Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                width: size.width / 2 - 25,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 50, 50, 50)
+                                      : Color.fromARGB(50, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/playlistImage5.jpg"),
+                                            fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "Modun Kötüyse",
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          color: clientCubit.state.darkMode
+                                              ? Color.fromARGB(
+                                                  255, 225, 225, 225)
+                                              : Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                width: size.width / 2 - 25,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: clientCubit.state.darkMode
+                                      ? Color.fromARGB(255, 50, 50, 50)
+                                      : Color.fromARGB(50, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                "assets/images/playlistImage6.webp"),
+                                            fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "Slow",
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          color: clientCubit.state.darkMode
+                                              ? Color.fromARGB(
+                                                  255, 225, 225, 225)
+                                              : Colors.black87,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        SoloTitleItem(AppLocalizations.of(context).getTranslate("home_title1")),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 2,
+                              ),
+                              ListenAgainFrame("assets/images/musicIgnite.jpg",
+                                  "Ignite (feat. Alan Walker, Julie Bergan ve SEUNGRI)"),
+                              ListenAgainPlaylistFrame(
+                                  "assets/images/playlistImage2.jpg", "Türkçe"),
+                              ListenAgainFrame("assets/images/musicImgood.jpg",
+                                  "I'm good (Blue) - David Guetta & Bebe Rexha"),
+                              ListenAgainFrame(
+                                  "assets/images/musicImparator.jpg",
+                                  "IMPARATOR - Sefo"),
+                              ListenAgainFrame("assets/images/musicKor.jpg",
+                                  "Kor - Emir Can İğrek"),
+                              ListenAgainFrame(
+                                  "assets/images/musicSeninugruna.jpg",
+                                  "SENIN UGRUNA - UZI"),
+                              ListenAgainPlaylistFrame(
+                                  "assets/images/playlistImage6.webp", "Slow"),
+                            ],
+                          ),
+                        ),
+                        TitleItem(AppLocalizations.of(context).getTranslate("home_title2"), AppLocalizations.of(context).getTranslate("home_title2_other")),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 2,
+                              ),
+                              PlaylistFrame(
+                                  "assets/images/playlistImage7.jpg",
+                                  "Supermix'im",
+                                  "David Guetta, INNA ve J Balvin"),
+                              PlaylistFrame(
+                                  "assets/images/playlistImage8.jpg",
+                                  "Karişik Listem 1",
+                                  "Sean Paul, Pitbull ve Marron 5"),
+                              PlaylistFrame(
+                                  "assets/images/playlistImage9.jpg",
+                                  "Karişik Listem 2",
+                                  "Sefo, UZI, Çakal, ate ve Lvbel C5"),
+                              PlaylistFrame(
+                                  "assets/images/playlistImage7.jpg",
+                                  "Supermix'im",
+                                  "David Guetta, INNA ve J Balvin"),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Text(
+                            AppLocalizations.of(context).getTranslate("home_startRadio"),
                             style: TextStyle(
                               color: Color.fromARGB(255, 150, 150, 150),
-                              fontSize: 13,
+                              fontSize: 11,
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        TitleItem(AppLocalizations.of(context).getTranslate("home_title3"), AppLocalizations.of(context).getTranslate("home_title3_all")),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              Column(
+                                children: [
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicKor.jpg",
+                                      "Kor",
+                                      "Emir Can İğrek"),
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicIgnite.jpg",
+                                      "Ignite",
+                                      "K-391 & Alan Walker"),
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicImgood.jpg",
+                                      "I'm Good (blue)",
+                                      "David Guetta & Bebe Rexha"),
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicImparator.jpg",
+                                      "IMPARATOR",
+                                      "Sefo"),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicSeninugruna.jpg",
+                                      "SENIN UGRUNA",
+                                      "UZI"),
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicImparator.jpg",
+                                      "IMPARATOR",
+                                      "Sefo"),
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicKor.jpg",
+                                      "Kor",
+                                      "Emir Can İğrek"),
+                                  QuickPicksMusic(
+                                      size,
+                                      "assets/images/musicIgnite.jpg",
+                                      "Ignite",
+                                      "K-391 & Alan Walker"),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        SoloTitleItem(AppLocalizations.of(context).getTranslate("home_title4")),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              PlaylistFrame(
+                                  "assets/images/playlistImage10.png",
+                                  "Arabada Yabanci",
+                                  "Profil x • 2,7 B görüntülenme"),
+                              PlaylistFrame(
+                                  "assets/images/playlistImage12.jpg",
+                                  "Sakin Türkçe",
+                                  "Profil xx • 268 B görüntülenme"),
+                              PlaylistFrame(
+                                  "assets/images/playlistImage11.jpg",
+                                  "Yabanci Hit",
+                                  "Profil 8 • 2,8 B görüntülenme"),
+                              PlaylistFrame("assets/images/playlistImage2.jpg",
+                                  "Karişik", "Profil 11 • 1,6 B görüntülenme"),
+                            ],
+                          ),
+                        ),
+                        SoloTitleItem(AppLocalizations.of(context).getTranslate("home_title5")),
+                        RecommendedMusicList(size),
+                      ],
+                    ),
                   ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Icon(Icons.cast, color: Colors.white),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Icon(Icons.play_circle, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-            BottomMenu(),
-          ],
+              Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: clientCubit.state.darkMode
+                      ? Color.fromARGB(255, 40, 40, 40)
+                      : Color.fromARGB(255, 245, 245, 245),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: clientCubit.state.darkMode
+                          ? Color.fromARGB(255, 70, 70, 70)
+                          : Color.fromARGB(150, 158, 158, 158),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 3),
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image:
+                                    AssetImage("assets/images/musicImgood.jpg"),
+                                fit: BoxFit.fill,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "I'm Good (blue)",
+                              style: TextStyle(
+                                color: clientCubit.state.darkMode
+                                    ? Colors.white
+                                    : Colors.black87,
+                                fontSize: 13,
+                              ),
+                            ),
+                            Text(
+                              "David Guetta & Bebe Rexha",
+                              style: TextStyle(
+                                color: clientCubit.state.darkMode
+                                    ? Color.fromARGB(255, 150, 150, 150)
+                                    : Color.fromARGB(255, 116, 116, 116),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Icon(Icons.cast,
+                              color: clientCubit.state.darkMode
+                                  ? Colors.white
+                                  : Colors.black87),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Icon(Icons.play_circle,
+                              color: clientCubit.state.darkMode
+                                  ? Colors.white
+                                  : Colors.black87),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              BottomMenu(),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Container RecommendedMusicList(Size size) {
@@ -952,7 +1115,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: clientCubit.state.darkMode
+                          ? Colors.white
+                          : Colors.black87,
                       fontSize: 13,
                     ),
                   ),
@@ -967,7 +1132,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          Icon(Icons.more_vert, color: Colors.white),
+          Icon(Icons.more_vert,
+              color:
+                  clientCubit.state.darkMode ? Colors.white : Colors.black87),
         ],
       ),
     );
@@ -1004,7 +1171,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: clientCubit.state.darkMode
+                          ? Colors.white
+                          : Colors.black87,
                       fontSize: 13,
                     ),
                   ),
@@ -1029,15 +1198,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20)),
-                      color: Color.fromARGB(255, 30, 30, 30),
+                      color: clientCubit.state.darkMode
+                          ? Color.fromARGB(255, 30, 30, 30)
+                          : Color.fromARGB(255, 230, 230, 230),
                     ),
                     height: 180,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        MusicSettingsSection(Icons.queue_music, "Siraya ekle", () {}),
                         MusicSettingsSection(
-                            Icons.favorite_border, "Beğenilenlere ekle", () {
+                            Icons.queue_music, "Siraya ekle", () {}),
+                        MusicSettingsSection(
+                            favoritesCubit
+                                    .isFavorite(musicsData[index]["id"] as int)
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            favoritesCubit
+                                    .isFavorite(musicsData[index]["id"] as int)
+                                ? "Beğenilenlere eklenmiş"
+                                : "Beğenilenlere ekle", () {
                           favoritesCubit.addToFavorites(
                               id: musicsData[index]["id"] as int,
                               photo: musicsData[index]["photo"].toString(),
@@ -1055,7 +1234,10 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: Padding(
               padding: const EdgeInsets.all(5.0),
-              child: Icon(Icons.more_vert, color: Colors.white),
+              child: Icon(Icons.more_vert,
+                  color: clientCubit.state.darkMode
+                      ? Colors.white
+                      : Colors.black87),
             ),
           ),
         ],
@@ -1070,14 +1252,18 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         child: Row(
           children: [
-            Icon(icon, size: 17, color: Colors.white),
+            Icon(icon,
+                size: 17,
+                color:
+                    clientCubit.state.darkMode ? Colors.white : Colors.black87),
             SizedBox(
               width: 10,
             ),
             Text(
               title,
               style: TextStyle(
-                color: Colors.white,
+                color:
+                    clientCubit.state.darkMode ? Colors.white : Colors.black87,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
               ),
@@ -1117,7 +1303,8 @@ class _HomeScreenState extends State<HomeScreen> {
               overflow: TextOverflow.ellipsis,
               softWrap: true,
               style: TextStyle(
-                color: Colors.white,
+                color:
+                    clientCubit.state.darkMode ? Colors.white : Colors.black87,
                 fontSize: 13,
               ),
             ),
@@ -1156,7 +1343,8 @@ class _HomeScreenState extends State<HomeScreen> {
               overflow: TextOverflow.ellipsis,
               softWrap: true,
               style: TextStyle(
-                color: Colors.white,
+                color:
+                    clientCubit.state.darkMode ? Colors.white : Colors.black87,
                 fontSize: 13,
               ),
             ),
@@ -1197,7 +1385,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   overflow: TextOverflow.ellipsis,
                   softWrap: true,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: clientCubit.state.darkMode
+                        ? Colors.white
+                        : Colors.black87,
                     fontSize: 14,
                   ),
                 ),
@@ -1228,7 +1418,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title,
         style: TextStyle(
           fontSize: 20,
-          color: Color.fromARGB(255, 240, 240, 240),
+          color: clientCubit.state.darkMode
+              ? Color.fromARGB(255, 240, 240, 240)
+              : Colors.black87,
         ),
       ),
     );
@@ -1244,14 +1436,18 @@ class _HomeScreenState extends State<HomeScreen> {
             title,
             style: TextStyle(
               fontSize: 20,
-              color: Color.fromARGB(255, 240, 240, 240),
+              color: clientCubit.state.darkMode
+                  ? Color.fromARGB(255, 240, 240, 240)
+                  : Colors.black87,
             ),
           ),
           Container(
             margin: EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Color.fromARGB(70, 240, 240, 240),
+                color: clientCubit.state.darkMode
+                    ? Color.fromARGB(70, 240, 240, 240)
+                    : Colors.black87,
               ),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -1261,7 +1457,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 link,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color.fromARGB(255, 240, 240, 240),
+                  color: clientCubit.state.darkMode
+                      ? Color.fromARGB(255, 240, 240, 240)
+                      : Colors.black87,
                 ),
               ),
             ),
@@ -1280,12 +1478,16 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.all(2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color.fromARGB(255, 240, 135, 64),
+              color: clientCubit.state.darkMode
+                  ? Color.fromARGB(255, 240, 135, 64)
+                  : Color.fromARGB(255, 132, 132, 132),
             ),
             child: Container(
               padding: EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 30, 30, 30),
+                color: clientCubit.state.darkMode
+                    ? Color.fromARGB(255, 30, 30, 30)
+                    : Color.fromARGB(255, 251, 251, 251),
                 shape: BoxShape.circle,
               ),
               child: CircleAvatar(
@@ -1307,7 +1509,9 @@ class _HomeScreenState extends State<HomeScreen> {
               softWrap: true,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color.fromARGB(255, 225, 225, 225),
+                color: clientCubit.state.darkMode
+                    ? Color.fromARGB(255, 225, 225, 225)
+                    : Colors.black87,
                 fontSize: 13,
               ),
             ),
@@ -1339,7 +1543,9 @@ class _HomeScreenState extends State<HomeScreen> {
               softWrap: true,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color.fromARGB(255, 225, 225, 225),
+                color: clientCubit.state.darkMode
+                    ? Color.fromARGB(255, 225, 225, 225)
+                    : Colors.black87,
                 fontSize: 13,
               ),
             ),
@@ -1351,7 +1557,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget BottomMenu() {
     return Container(
-      color: Color.fromARGB(255, 40, 40, 40),
+      color: clientCubit.state.darkMode
+          ? Color.fromARGB(255, 40, 40, 40)
+          : Colors.white,
       width: double.infinity,
       height: 80,
       child: Row(
@@ -1360,22 +1568,22 @@ class _HomeScreenState extends State<HomeScreen> {
           InkWell(
             onTap: () {}, // Zaten ana sayfada olduğumuzdan Navigator eklemedim
             child: BottomMenuItems(
-                "Ana Sayfa", Icons.home_outlined, Icons.home, true),
+                AppLocalizations.of(context).getTranslate("bottomItem_home"), Icons.home_outlined, Icons.home, true),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/search"),
             child: BottomMenuItems(
-                "Ara", Icons.search_outlined, Icons.saved_search, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_search"), Icons.search_outlined, Icons.saved_search, false),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/library"),
-            child: BottomMenuItems("Kitapliğin", Icons.library_music_outlined,
+            child: BottomMenuItems(AppLocalizations.of(context).getTranslate("bottomItem_library"), Icons.library_music_outlined,
                 Icons.library_music, false),
           ),
           InkWell(
             onTap: () => GoRouter.of(context).push("/profile"),
             child: BottomMenuItems(
-                "Profil", Icons.person_outline, Icons.person, false),
+                AppLocalizations.of(context).getTranslate("bottomItem_profile"), Icons.person_outline, Icons.person, false),
           ),
         ],
       ),
@@ -1394,14 +1602,18 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(
             changeIcon,
             size: 26,
-            color: Color.fromARGB(255, 234, 234, 234),
+            color: clientCubit.state.darkMode
+                ? Color.fromARGB(255, 234, 234, 234)
+                : Colors.black87,
           ),
           SizedBox(height: 2),
           Text(
             iconName,
             style: TextStyle(
               fontSize: 10,
-              color: Color.fromARGB(255, 234, 234, 234),
+              color: clientCubit.state.darkMode
+                  ? Color.fromARGB(255, 234, 234, 234)
+                  : Colors.black87,
             ),
           ),
         ],

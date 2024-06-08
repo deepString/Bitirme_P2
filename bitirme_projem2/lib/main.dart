@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'bloc/client/client_cubit.dart';
 import 'bloc/favorites/favorites_cubit.dart';
+import 'engine/localizations.dart';
 import 'engine/routes.dart';
 import 'engine/themes.dart';
 
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => ClientCubit(
-            ClientState(language: "tr", darkMode: false),
+            ClientState(language: "tr", darkMode: true),
           ),
         ),
         BlocProvider(
@@ -39,6 +41,17 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: state.darkMode ? ThemeMode.dark : ThemeMode.light,
           darkTheme: darkTheme,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('tr', 'TR'),
+          ],
+          locale: Locale(state.language),
         );
       }),
     );

@@ -41,4 +41,8 @@ class FavoritesCubit extends Cubit<FavoritesState> {
 
     emit(newState);
   }
+
+  bool isFavorite(int id) {
+    return state.favoritesMusic.any((element) => element["id"] == id);
+  }
 }
