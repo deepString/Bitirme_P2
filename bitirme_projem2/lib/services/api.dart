@@ -52,14 +52,32 @@ class API {
     }
   }
 
-  getSplash() async {
-    return await Future.delayed(Duration(milliseconds: 800), () {
+  getStaticPage() async {
+    return await Future.delayed(const Duration(milliseconds: 900), () {
       return {
-        "logo": "assets/images/logoApp.png",
-        "backgroundColor": ["603565", "863dba"],
-        "duration": 1500
+        "splash": {
+          "logo": "assets/images/logoApp.png",
+          "backgroundColor": ["603565", "863dba"],
+          "duration": 1500
+        },
+        "contact": {
+          "githubLink": "https://github.com/deepString",
+          "phones": "+901234567899"
+        },
       };
     });
+  }
+
+  download(String path, String savePath) async {
+    try {
+    await dio.download(path, savePath);
+    return true;
+    }
+    on Exception catch (e) {
+      print("Bir hata oluştu");
+      print(e);
+      return null;
+    }
   }
 
 }

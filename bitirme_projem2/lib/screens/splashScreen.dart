@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -21,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
   bool configLoaded = false;
 
   splashScreen() async {
-
     CacheSystem cs = CacheSystem();
     final pageConfig = await cs.getSplashConfig();
     setState(() {
@@ -72,7 +73,9 @@ class _SplashScreenState extends State<SplashScreen> {
                           if (pageConfig["logo"].startsWith("https://"))
                             Image.network(pageConfig["logo"], height: 105)
                           else
-                            Image.asset(pageConfig["logo"], height: 105),
+                            pageConfig["logo"].startsWith("assets")
+                                ? Image.asset(pageConfig["logo"], height: 105)
+                                : Image.file(File(pageConfig["logo"]), height: 105),
                         Gap(10),
                         Text(
                           "Rosetune",

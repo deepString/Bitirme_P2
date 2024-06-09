@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../bloc/client/client_cubit.dart';
 import '../bloc/favorites/favorites_cubit.dart';
+import '../engine/cache.dart';
 import '../engine/localizations.dart';
 import '../engine/storage.dart';
+import '../services/api.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,6 +80,29 @@ class _HomeScreenState extends State<HomeScreen> {
     "Id": "",
     "Name": "",
   };
+
+  syncServer() async {
+    if (kIsWeb) {
+
+    }
+    else {
+      API api = API();
+      final response = await api.getStaticPage();
+      CacheSystem cacheYoneticim = CacheSystem();
+
+      cacheYoneticim.saveMapToCache("contact.json", response["contact"]);
+
+      String appLogo = response["splash"]["logo"];
+      if (appLogo.isNotEmpty && appLogo.startsWith("http")) {
+        final Directory appCacheDir = await getApplicationCacheDirectory();
+
+        await api.download(appLogo, "${appCacheDir.path}/splashLogo.${appLogo.split('.').last.split('?').first}");
+
+        response["splash"]["logo"] = "${appCacheDir.path}/splashLogo.${appLogo.split('.').last.split('?').first}";
+      }
+      cacheYoneticim.saveMapToCache("splash.json", response["splash"]);
+    }
+  }
 
   checkLogin() async {
     Storage storage = Storage();
@@ -224,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
     checkLogin();
     favoritesCubit = context.read<FavoritesCubit>();
     clientCubit = context.read<ClientCubit>();
+    syncServer();
   }
 
   @override

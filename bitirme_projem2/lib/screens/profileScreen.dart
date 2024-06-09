@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -361,7 +362,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     checkLogin();
     clientCubit = context.read<ClientCubit>();
-    profilVarsaYukle();
+    if (!kIsWeb) {
+      profilVarsaYukle();
+    }
   }
 
   @override
@@ -847,7 +850,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             InkWell(
-                              onTap: profilePhotoUpdate,
+                              onTap: kIsWeb ? () {} : profilePhotoUpdate,
                               child: Container(
                                 padding: EdgeInsets.all(2),
                                 decoration: BoxDecoration(
