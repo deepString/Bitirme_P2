@@ -52,4 +52,14 @@ class API {
     }
   }
 
+  getSplash() async {
+    return await Future.delayed(Duration(milliseconds: 800), () {
+      return {
+        "logo": "assets/images/logoApp.png",
+        "backgroundColor": ["603565", "863dba"],
+        "duration": 1500
+      };
+    });
+  }
+
 }

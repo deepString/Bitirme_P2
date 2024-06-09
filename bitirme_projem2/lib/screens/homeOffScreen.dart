@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
 import '../bloc/client/client_cubit.dart';
+import '../engine/cache.dart';
 import '../engine/localizations.dart';
 import '../engine/storage.dart';
 import '../widgets/drawerItem.dart';
@@ -27,10 +28,22 @@ class _HomeOffScreenState extends State<HomeOffScreen> {
 
   bool isProfile = false;
 
+  Map<String, dynamic> pageConfig = {};
+  bool configLoaded = false;
+
   Map<String, dynamic> userInfo = {
     "Id": "",
     "Name": "",
   };
+
+  loadData() async {
+    CacheSystem cs = CacheSystem();
+    final pageConfig = await cs.getContactConfig();
+    setState(() {
+      this.pageConfig = pageConfig;
+      configLoaded = true;
+    });
+  }
 
   checkLogin() async {
     Storage storage = Storage();
@@ -180,12 +193,15 @@ class _HomeOffScreenState extends State<HomeOffScreen> {
     super.initState();
     checkLogin();
     clientCubit = context.read<ClientCubit>();
+    loadData();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ClientCubit, ClientState>(builder: (context, state) {
-      return SafeArea(
+      return !configLoaded
+        ? const SizedBox()
+        : SafeArea(
         child: Scaffold(
           backgroundColor: clientCubit.state.darkMode
               ? isProfile
@@ -436,11 +452,12 @@ class _HomeOffScreenState extends State<HomeOffScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
                           children: [
+                            if (pageConfig["githubLink"].isNotEmpty)
                             InkWell(
-                              onTap: () {
+                              onTap: () async {
                                 final Uri uri =
-                                    Uri.parse("https://github.com/deepString");
-                                launchUrl(uri);
+                                    Uri.parse(pageConfig["githubLink"]);
+                                await launchUrl(uri);
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(6.0),
@@ -458,10 +475,11 @@ class _HomeOffScreenState extends State<HomeOffScreen> {
                             SizedBox(
                               width: 5,
                             ),
+                            if (pageConfig["phones"].isNotEmpty)
                             InkWell(
-                              onTap: () {
-                                final Uri uri = Uri.parse("tel:+901234567899");
-                                launchUrl(uri);
+                              onTap: () async {
+                                final Uri uri = Uri.parse("tel:" + pageConfig["phones"]);
+                                await launchUrl(uri);
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(6.0),
