@@ -1,19 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'package:image/image.dart' as img;
 
 import '../bloc/client/client_cubit.dart';
 import '../engine/localizations.dart';
 import '../engine/storage.dart';
-import '../widgets/drawerItem.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -311,211 +308,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: clientCubit.state.darkMode
             ? Color.fromARGB(255, 40, 32, 25)
             : Color.fromARGB(255, 251, 251, 251),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          iconTheme: IconThemeData(
-              color: clientCubit.state.darkMode
-                  ? Color.fromARGB(255, 185, 185, 185)
-                  : Colors.black87),
-          title: Text(
-            "@berkayt",
-            style: TextStyle(
-                color: clientCubit.state.darkMode
-                    ? Color.fromARGB(255, 225, 224, 223)
-                    : Colors.black87),
-          ),
-          actions: [
-            Container(
-              height: 20,
-              child: Transform.scale(
-                scale: 0.8,
-                child: Switch(
-                  value: clientCubit.state.darkMode,
-                  onChanged: (value) {
-                    setState(() {
-                      clientCubit.changeDarkMode(darkMode: value);
-                    });
-                  },
-                  activeThumbImage: AssetImage("assets/images/nightMode.png"),
-                  inactiveThumbImage: AssetImage("assets/images/lightMode.png"),
-                  activeTrackColor: Colors.white,
-                  trackOutlineColor: MaterialStatePropertyAll(
-                      clientCubit.state.darkMode
-                          ? Color.fromARGB(255, 185, 185, 185)
-                          : Colors.grey),
-                  thumbColor: MaterialStatePropertyAll(Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-        drawer: Drawer(
-          backgroundColor: clientCubit.state.darkMode
-                ? Color.fromARGB(255, 40, 32, 25)
-                : Color.fromARGB(255, 251, 251, 251),
-              surfaceTintColor: clientCubit.state.darkMode
-                ? Color.fromARGB(255, 40, 32, 25)
-                : Color.fromARGB(255, 251, 251, 251),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 6, left: 6, top: 50, bottom: 30),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: clientCubit.state.darkMode
-                              ? Color.fromARGB(255, 240, 135, 64)
-                              : Color.fromARGB(255, 132, 132, 132),
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: clientCubit.state.darkMode
-                                ? Color.fromARGB(255, 30, 30, 30)
-                                : Colors.white,
-                        ),
-                        child: CircleAvatar(
-                          backgroundImage:
-                              AssetImage("assets/images/profil1.jpg"),
-                          radius: 40,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "${userInfo["Name"]}",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: AppLocalizations.of(context).getTranslate("drawer_playlists"),
-                      icon: Icon(Icons.library_music, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/library");
-                      },
-                    ),
-                    DrawerItem(
-                        name: AppLocalizations.of(context).getTranslate("drawer_findMusic"),
-                        icon: Icon(Icons.graphic_eq, size: 22),
-                        onTapRoute: () {
-                          GoRouter.of(context).push("/musicRecognize");
-                        },
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 15),
-                      child: Row(
-                        children: [
-                          Icon(Icons.message, size: 22),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            AppLocalizations.of(context).getTranslate("drawer_contact"),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              final Uri uri =
-                                  Uri.parse("https://github.com/deepString");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: SvgPicture.asset(
-                                "assets/icons/github.svg",
-                                height: 30,
-                                colorFilter: ColorFilter.mode(
-                                      clientCubit.state.darkMode
-                                          ? Colors.white
-                                          : Colors.black87,
-                                      BlendMode.srcIn),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              final Uri uri = Uri.parse("tel:+901234567899");
-                              launchUrl(uri);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(Icons.phone),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DrawerItem(
-                      name: AppLocalizations.of(context).getTranslate("drawer_settings"),
-                      icon: Icon(Icons.settings, size: 22),
-                      onTapRoute: () {
-                        GoRouter.of(context).push("/setting");
-                      },
-                    ),
-                    Divider(
-                      color: Color.fromARGB(136, 155, 155, 155),
-                    ),
-                    DrawerItem(
-                      name: AppLocalizations.of(context).getTranslate("drawer_signOut"),
-                      icon: Icon(Icons.logout_outlined, size: 22),
-                      onTapRoute: () {
-                        if (kIsWeb) {
-                          logoutMaterial();
-                        } else {
-                          if (Platform.isIOS || Platform.isMacOS) {
-                            logoutIOS();
-                          } else {
-                            logoutMaterial();
-                          }
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "Version 1.0.0",
-                style: TextStyle(color: clientCubit.state.darkMode
-                          ? Color.fromARGB(200, 255, 255, 255)
-                          : Colors.grey, fontSize: 11),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        ),
         body: Column(
           children: [
             Expanded(
@@ -865,7 +657,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            BottomMenu(),
           ],
         ),
       ),
@@ -919,74 +710,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget BottomMenu() {
-    return Container(
-      color: clientCubit.state.darkMode
-          ? Color.fromARGB(255, 35, 28, 21)
-          : Colors.white,
-      width: double.infinity,
-      height: 80,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          InkWell(
-            onTap: () => GoRouter.of(context).push("/home"),
-            child: BottomMenuItems(
-                AppLocalizations.of(context).getTranslate("bottomItem_home"), Icons.home_outlined, Icons.home, true),
-          ),
-          InkWell(
-            onTap: () => GoRouter.of(context).push("/search"),
-            child: BottomMenuItems(
-                AppLocalizations.of(context).getTranslate("bottomItem_search"), Icons.search_outlined, Icons.saved_search, false),
-          ),
-          InkWell(
-            onTap: () => GoRouter.of(context).push("/library"),
-            child: BottomMenuItems(AppLocalizations.of(context).getTranslate("bottomItem_library"), Icons.library_music_outlined,
-                Icons.library_music, false),
-          ),
-          InkWell(
-            onTap: () {
-              //Navigator.pushNamed(context, '/profile'); // Zaten profil sayfasında olduğumuzdan burası kapalı
-            },
-            child: BottomMenuItems(
-                AppLocalizations.of(context).getTranslate("bottomItem_profile"), Icons.person_outline, Icons.person, false),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget BottomMenuItems(String iconName, IconData iconActive,
-      IconData iconDeactive, bool active) {
-    IconData changeIcon = active ? iconDeactive : iconActive;
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            changeIcon,
-            size: 26,
-            color: clientCubit.state.darkMode
-                ? Color.fromARGB(255, 225, 224, 223)
-                : Colors.black87,
-          ),
-          SizedBox(height: 2),
-          Text(
-            iconName,
-            style: TextStyle(
-              fontSize: 10,
-              color: clientCubit.state.darkMode
-                  ? Color.fromARGB(255, 225, 224, 223)
-                  : Colors.black87,
-            ),
-          ),
-        ],
       ),
     );
   }
