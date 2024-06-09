@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,18 +173,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   File? file;
-  File? cacheFile;
+  // File? cacheFile;
+  Uint8List? imageBytes;
   profilVarsaYukle() async {
     final Directory appCacheDir = await getApplicationCacheDirectory();
     File f = File("${appCacheDir.path}/avatar.jpg");
 
     if (f.existsSync()) {
       setState(() {
-        cacheFile = f;
+        imageBytes = f.readAsBytesSync();
       });
-    }
-    else {
-
     }
   }
 
@@ -196,11 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (selectedFile == null) {
         setState(() {
           file = null;
+          imageBytes = null;
         });
         return;
       }
-
-      var fileLength = await selectedFile.length();
 
       var dosyaFormati = selectedFile.name.split(".").last;
 
@@ -222,15 +221,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text("Dosya Tipi"),
+            title: Text(
+              "Dosya Tipi",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             content: Text(
-                "Seçilen dosya türü desteklenmiyor"),
+              "Seçilen dosya türü desteklenmiyor",
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(Colors.black87),
+                  ),
+                  child: Text(
+                    "Tamam",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                    ),
+                  )),
+            ],
           ),
         );
         return;
       }
 
-      img.Image? temp;
+      Uint8List fileBytes = await selectedFile.readAsBytes();
+      img.Image? temp = img.decodeImage(fileBytes);
+
+      // img.Image? temp;
 
       if (dosyaFormati.toLowerCase() == "jpg" || dosyaFormati.toLowerCase() == "jpeg") {
         temp = img.decodeJpg(File(selectedFile.path).readAsBytesSync());
@@ -251,13 +282,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
         temp = img.decodeIco(File(selectedFile.path).readAsBytesSync());
       }
 
-      if (temp!.width < 500 || temp.height < 359 || temp == null) {
+      if (temp!.width < 500 || temp.height < 359) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text("Seçilen Dosya Boyutu"),
+            title: Text(
+              "Favorilerden Kaldir",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: Colors.white,
             content: Text(
-                "Seçilen dosyanin boyutu çok küçük, en az 500x359 seçmelisiniz"),
+              "Seçilen dosyanin boyutu çok küçük, en az 500x359 seçmelisiniz",
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(Colors.black87),
+                  ),
+                  child: Text(
+                    "Tamam",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                    ),
+                  )),
+            ],
           ),
         );
 
@@ -275,8 +336,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Save the thumbnail to a jpeg file.
       final resizedFileData = img.encodeJpg(thumbnail, quality: 85);
 
-      final Directory tempDir = await getTemporaryDirectory();
-      final Directory appSupportDir = await getApplicationSupportDirectory();
+      Uint8List resizedBytes = Uint8List.fromList(img.encodeJpg(thumbnail, quality: 85));
+
+      // final Directory tempDir = await getTemporaryDirectory();
+      // final Directory appSupportDir = await getApplicationSupportDirectory();
       final Directory appCacheDir = await getApplicationCacheDirectory();
 
       File yeniDosyam = File("${appCacheDir.path}/avatar.jpg");
@@ -284,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         file = yeniDosyam;
-        cacheFile = yeniDosyam;
+        imageBytes = resizedBytes;
       });
 
     } on Exception catch (e) {
@@ -773,8 +836,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: CircleAvatar(
-                      backgroundImage: cacheFile != null
-                          ? FileImage(cacheFile!)
+                      backgroundImage: imageBytes != null
+                          ? MemoryImage(imageBytes!)
                           : AssetImage("assets/images/profil1.jpg") as ImageProvider<Object>,
                       radius: 38,
                       child: Container(
