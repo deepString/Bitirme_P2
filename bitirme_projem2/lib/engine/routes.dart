@@ -12,6 +12,7 @@ import '../screens/libraryScreen.dart';
 import '../screens/loginScreen.dart';
 import '../screens/musicRecognize.dart';
 import '../screens/permissionScreen.dart';
+import '../screens/playMusicScreen.dart';
 import '../screens/profileScreen.dart';
 import '../screens/registerScreen.dart';
 import '../screens/resetPassword.dart';
@@ -108,6 +109,10 @@ final routes = GoRouter(
     GoRoute(
       path: '/perms',
       builder: (context, state) => const PermissionScreen(),
+    ),
+    GoRoute(
+      path: '/playMusic',
+      builder: (context, state) => const PlayMusicScreen(),
     ),
   ],
 );

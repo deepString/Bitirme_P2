@@ -52,6 +52,31 @@ class API {
     }
   }
 
+  songList() async {
+    return await Future.delayed(const Duration(milliseconds: 600), () {
+      return [
+        {
+          "photo": "assets/images/musicImgood.jpg",
+          "musicName": "I'm Good (Blue)",
+          "artist": "Bebe Rexha & David Guetta",
+          "url": "music/DavidGuetta_ImGood.mp3",
+        },
+        {
+          "photo": "assets/images/musicBeYourself.jpg",
+          "musicName": "Be Yourself",
+          "artist": "Audioslave",
+          "url": "music/Audioslave_BeYourself.mp3",
+        },
+        {
+          "photo": "assets/images/musicHuyuSuyu.jpg",
+          "musicName": "Huyu Suyu",
+          "artist": "Emir Taha",
+          "url": "music/emirtaha_HuyuSuyu.mp3",
+        },
+      ];
+    });
+  }
+
   getStaticPage() async {
     return await Future.delayed(const Duration(milliseconds: 900), () {
       return {

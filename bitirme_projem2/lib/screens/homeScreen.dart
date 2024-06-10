@@ -805,55 +805,67 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(2.0),
+                    InkWell(
+                      onTap: () => GoRouter.of(context).push("/playMusic"),
+                      child: Hero(
+                        tag: "playMusicTag",
+                        child: Material(
+                          type: MaterialType.transparency,
                           child: Container(
-                            margin: EdgeInsets.symmetric(vertical: 3),
-                            height: 60,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image:
-                                    AssetImage("assets/images/musicImgood.jpg"),
-                                fit: BoxFit.fill,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
+                            width: size.width - 100,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Container(
+                                    margin: EdgeInsets.symmetric(vertical: 3),
+                                    height: 60,
+                                    width: 60,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image:
+                                            AssetImage("assets/images/musicImgood.jpg"),
+                                        fit: BoxFit.fill,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "I'm Good (blue)",
+                                      style: TextStyle(
+                                        color: clientCubit.state.darkMode
+                                            ? Colors.white
+                                            : Colors.black87,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    Text(
+                                      "David Guetta & Bebe Rexha",
+                                      style: TextStyle(
+                                        color: clientCubit.state.darkMode
+                                            ? Color.fromARGB(255, 150, 150, 150)
+                                            : Color.fromARGB(255, 116, 116, 116),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "I'm Good (blue)",
-                              style: TextStyle(
-                                color: clientCubit.state.darkMode
-                                    ? Colors.white
-                                    : Colors.black87,
-                                fontSize: 13,
-                              ),
-                            ),
-                            Text(
-                              "David Guetta & Bebe Rexha",
-                              style: TextStyle(
-                                color: clientCubit.state.darkMode
-                                    ? Color.fromARGB(255, 150, 150, 150)
-                                    : Color.fromARGB(255, 116, 116, 116),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                     Row(
                       children: [
