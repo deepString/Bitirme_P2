@@ -22,6 +22,9 @@ class _PlayMusicScreenState extends State<PlayMusicScreen> {
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
 
+  bool isMusicRoomOpen = false;
+  bool isMicrophneOn = false;
+
   late StreamSubscription<PlayerState> playerStateSubscription;
   late StreamSubscription<Duration> positionSubscription;
   late StreamSubscription<Duration> durationSubscription;
@@ -96,6 +99,12 @@ class _PlayMusicScreenState extends State<PlayMusicScreen> {
     }
   }
 
+  bottomSheetDurumuGuncelle(bool bottomSheetState) {
+    setState(() {
+      isMusicRoomOpen = bottomSheetState;
+    });
+  }
+
   @override
   void dispose() {
     playerStateSubscription.cancel();
@@ -124,6 +133,335 @@ class _PlayMusicScreenState extends State<PlayMusicScreen> {
                   size: 30, color: Colors.white),
             ),
             actions: [
+              InkWell(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return StatefulBuilder(builder:
+                          (BuildContext context, StateSetter setModalState) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20)),
+                            color: Color.fromARGB(255, 20, 71, 113),
+                          ),
+                          height: 260,
+                          width: double.infinity,
+                          child: isMusicRoomOpen
+                              ? Column(
+                                  children: [
+                                    Gap(10),
+                                    Container(
+                                      height: 3,
+                                      width: 30,
+                                      margin: EdgeInsets.only(bottom: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color:
+                                            Color.fromARGB(151, 255, 255, 255),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: true,
+                                              builder: (context) => AlertDialog(
+                                                title: Text(
+                                                  "Odayi Kapatiyorsunuz",
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.black87,
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                backgroundColor: Colors.white,
+                                                content: Text(
+                                                  "Odayi kapatmak istediğine emin misin?",
+                                                  style: TextStyle(
+                                                    color: Colors.black54,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                      onPressed: () =>
+                                                          GoRouter.of(context)
+                                                              .pop(),
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStatePropertyAll(
+                                                                Colors.black87),
+                                                      ),
+                                                      child: Text(
+                                                        "İptal",
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 15,
+                                                        ),
+                                                      )),
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        setModalState(() {
+                                                          isMusicRoomOpen =
+                                                              false;
+                                                        });
+                                                        bottomSheetDurumuGuncelle(false);
+                                                        GoRouter.of(context)
+                                                            .pop();
+                                                      },
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStatePropertyAll(
+                                                                Colors.black87),
+                                                      ),
+                                                      child: Text(
+                                                        "Odayi Kapat",
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 15,
+                                                        ),
+                                                      )),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: Text(
+                                              "Odayi Kapat",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Gap(25),
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child: ListView(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 5),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                InkWell(
+                                                  onTap: () {},
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.all(2),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Color.fromARGB(
+                                                              255,
+                                                              240,
+                                                              135,
+                                                              64),
+                                                        ),
+                                                        child: Container(
+                                                          padding:
+                                                              EdgeInsets.all(3),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    20,
+                                                                    71,
+                                                                    113),
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                          child: CircleAvatar(
+                                                            backgroundImage:
+                                                                AssetImage(
+                                                                    "assets/images/profil1.jpg"),
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            radius: 18,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Gap(10),
+                                                      Container(
+                                                        width: 150,
+                                                        child: Text(
+                                                          "Berkay",
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          softWrap: true,
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 4,
+                                                      vertical: 1),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: Color.fromARGB(
+                                                          255, 236, 237, 237),
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: Text(
+                                                    "Oda sahibi",
+                                                    style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 236, 237, 237),
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    IconButton(
+                                                      onPressed: () {},
+                                                      icon: Icon(Icons.message,
+                                                          size: 20,
+                                                          color: Colors.white),
+                                                    ),
+                                                    Gap(5),
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        setModalState(() {
+                                                          isMicrophneOn =
+                                                              !isMicrophneOn;
+                                                        });
+                                                      },
+                                                      icon: Icon(
+                                                          isMicrophneOn
+                                                              ? Icons.mic
+                                                              : Icons.mic_off,
+                                                          size: 20,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Gap(20),
+                                              Expanded(
+                                                child: Divider(
+                                                  color: Color.fromARGB(
+                                                      82, 255, 255, 255),
+                                                ),
+                                              ),
+                                              Gap(20),
+                                            ],
+                                          ),
+                                          IncomingUsers(
+                                              "assets/images/profile2.jpg",
+                                              "Kullanici1",
+                                              true,
+                                              true),
+                                          IncomingUsers(
+                                              "assets/images/profile3.jpg",
+                                              "Kullanici2",
+                                              false,
+                                              false),
+                                          IncomingUsers(
+                                              "assets/images/profile4.jpg",
+                                              "Kullanici3",
+                                              true,
+                                              false),
+                                          IncomingUsers(
+                                              "assets/images/profile5.webp",
+                                              "Kullanici4",
+                                              false,
+                                              false),
+                                          IncomingUsers(
+                                              "assets/images/profile6.jpg",
+                                              "Kullanici4",
+                                              false,
+                                              false),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Container(
+                                  child: Column(
+                                    children: [
+                                      Gap(40),
+                                      IconButton(
+                                        onPressed: () {
+                                          setModalState(() {
+                                            isMusicRoomOpen = true;
+                                            bottomSheetDurumuGuncelle(true);
+                                          });
+                                        },
+                                        icon: Icon(
+                                          Icons.add,
+                                          size: 35,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Gap(10),
+                                      Text(
+                                        "Oda Oluştur",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        );
+                      });
+                    },
+                  );
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Text(
+                    "Müzik Odasi",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 44, 197, 218),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
               IconButton(
                 onPressed: () {},
                 icon: Icon(Icons.more_vert, size: 25, color: Colors.white),
@@ -360,6 +698,14 @@ class _PlayMusicScreenState extends State<PlayMusicScreen> {
                                   ),
                                 ),
                               ),
+                              if (isMusicRoomOpen == true)
+                              Text(
+                                "Müzik odaniz açik",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 44, 197, 218),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500),
+                              ),
                               InkWell(
                                 onTap: () {},
                                 child: Padding(
@@ -371,11 +717,102 @@ class _PlayMusicScreenState extends State<PlayMusicScreen> {
                             ],
                           ),
                         ),
+                        InkWell(
+                          onTap: () {},
+                          child: Column(
+                            children: [
+                              Icon(Icons.keyboard_arrow_up,
+                                  color: Colors.white),
+                              Text(
+                                "Şarki Sözleri",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
         ),
+      ),
+    );
+  }
+
+  Widget IncomingUsers(
+      String photo, String name, bool isAuthorized, bool isMic) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: () {},
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromARGB(255, 240, 135, 64),
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 20, 71, 113),
+                      shape: BoxShape.circle,
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage(photo),
+                      backgroundColor: Colors.white,
+                      radius: 16,
+                    ),
+                  ),
+                ),
+                Gap(10),
+                Container(
+                  width: 180,
+                  child: Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isAuthorized == true)
+            Padding(
+              padding: const EdgeInsets.only(right: 30),
+              child: SvgPicture.asset(
+                "assets/icons/crown.svg",
+                height: 18,
+                colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              ),
+            ),
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+                child: Icon(isMic ? Icons.mic : Icons.mic_off,
+                    size: 18, color: Colors.white),
+              ),
+              Gap(5),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.more_vert, size: 20, color: Colors.white),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
