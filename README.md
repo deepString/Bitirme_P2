@@ -1,7 +1,7 @@
 # Social Music App
 
 ## Projenin Amacı
-**Kullanıcıların müzik dinleyebileceği ve diğer kullanıcılarla etkileşim kurabileceği bir sosyal müzik uygulaması**
+**Kullanıcıların müzik dinleyebileceği ve diğer kullanıcılarla etkileşim kurabileceği bir sosyal müzik uygulaması**<br>
 **Projeyi daha fazla geliştirdim**
 
 ## Takım Üyeleri
